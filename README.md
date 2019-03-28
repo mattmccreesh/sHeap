@@ -9,12 +9,12 @@ Once we have everything compiled, we need to set up the environment to run with 
 
 `LD_PRELOAD` is an environment variable that should be used to point to the `sheap.so` shared object file.
 
-For example, if you are at the top of the repo: 
+For example, if you are at the top of the repo you can run with: 
 ```
 LD_PRELOAD=$PWD/sheap.so ./runner
 ```
 
-## Structure
+## Files
 
 `main.c` - This is a test file that we can (should) use to make sure things are working
 
