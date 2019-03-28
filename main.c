@@ -2,7 +2,8 @@
 #include <stdlib.h>
 
 int main(){
-    void* b = malloc(24);
+    void* t = malloc(24);
+    void* b = realloc(t, 25);
 
     char* x = "Worked\0";
     char* xx = "Failed\0";
