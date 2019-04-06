@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include "sheap.h"
 
 /*
     I think these signatures are right. This is just
@@ -38,10 +41,10 @@ void* POOL_HASHTABLE_BASE = NULL; // Points to start of the pool hashtable
 // 
 void __init_meta_heap(){
     // Map out the metaheap
-    METAHEAP_BASE = mmap(0, 16<<10, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
+    METAHEAP_BASE = mmap(0, BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
 
     // Update the end pointer
-    METAHEAP_END = METAHEAP_BASE + 16 << 10;
+    METAHEAP_END = METAHEAP_BASE + BLOCK_SIZE;
 }
 
 // Allocates the memory and returns a pointer to it
