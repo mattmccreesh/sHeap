@@ -1,12 +1,14 @@
 #ifndef __SHEAP_FLIST_
 #define __SHEAP_FLIST_
+#include "sheap.h"
+#include <stddef.h>
 
 struct node {
   struct node* next;
   struct node* prev;
-  int nBlocks = 0;
-  void* type = NULL;
-  int size = 0;
+  int nBlocks;
+  void* type;
+  int size;
 };
 
 /**
@@ -21,7 +23,8 @@ void* gib_space ( int nBlocks, void* type, struct node** head );
 /**
  * Frees a block, adding the allocated block to the freelist
  * @param loc The location to free (should be the start of the allocation)
+ * @param head The start of the linked list for this size class
  */
-void kill_space ( void* loc );
+void kill_space ( void* loc, struct node** head );
 
 #endif
