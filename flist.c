@@ -7,7 +7,7 @@ void* getLocationFromNode ( struct node* node ) {
   if ( (long)node & 0x1111 ) {
     exit ( 1 );
   }
-  return (node - __SHEAP_FLIST_START) * BLOCK_SIZE + __SHEAP_BLOCK_START;
+  return ((void*)node - __SHEAP_FLIST_START) * BLOCK_SIZE + __SHEAP_BLOCK_START;
 }
 
 struct node* getNodeFromLocation ( void* loc ) {

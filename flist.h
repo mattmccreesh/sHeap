@@ -3,6 +3,11 @@
 #include "sheap.h"
 #include <stddef.h>
 
+// Externs
+extern void* __SHEAP_FLIST_START;
+extern void* __SHEAP_BLOCK_START;
+extern void* __SHEAP_FLIST_UNUSED;
+
 struct node {
   struct node* next;
   struct node* prev;
