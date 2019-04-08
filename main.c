@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <fcntl.h>
+#include <sys/mman.h>
 
 void write_char(char c){
   write(1, &c, 1);
@@ -26,16 +28,12 @@ void print_address_hex(void* p0) {
 
 
 int main(){
-    void* t = malloc(24);
-    void* b = realloc(t, 25);
+    int fd = open("/tmp/sheap", O_RDWR);
+    print_address_hex(fd);
+    short* p = (short*) mmap(0, 16<<10, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
+    print_address_hex(p);
 
-    char* x = "Worked\0";
-    char* xx = "Failed\0";
+    p[1000] = (short) 5;
 
-    print_address_hex(main);
-    if(b == 0xaabbccdd){
-        write(0,x,8);
-    }else{
-        write(0,xx,8);
-    }
+    printf("%d", p[1000]);
 }
