@@ -4,33 +4,13 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include "sheap.h"
+#include "pool_hash_table.h"
 
-/*
-    I think these signatures are right. This is just
-    something to keep in mind. Any alternative signatures
-    may need to be added later on.
-*/
-void write_char(char c){
-  write(1, &c, 1);
-}
-
-char hex_digit(int v) {
-  if (v >= 0 && v < 10)
-    return '0' + v;
-  else
-    return 'a' + v - 10; // <-- Here
-}
-
-void print_address_hex(void* p0) {
-  int i;
-  uintptr_t p = (uintptr_t)p0;
-
-  write_char('0'); write_char('x');
-  for(i = (sizeof(p) << 3) - 4; i>=0; i -= 4) {
-    write_char(hex_digit((p >> i) & 0xf));
-  }
-  write_char('\n');
-}
+// Load & define global ptrs
+void* METAHEAP_BASE = NULL;
+void* METAHEAP_END = NULL;
+void* POOL_HASH_TABLE_BASE = NULL;
+void* NEXT_FREE_METAHEAP_CHUNK = NULL;
 
 // Kick-off the initialization process of the metaheap construction
 void __init_meta_heap(){
@@ -39,8 +19,7 @@ void __init_meta_heap(){
     // Set the next free pointer
     NEXT_FREE_METAHEAP_CHUNK = METAHEAP_BASE;
     // Set the pool HT base
-    POOL_HASHTABLE_BASE = NEXT_FREE_METAHEAP_CHUNK;
-
+    POOL_HASH_TABLE_BASE = NEXT_FREE_METAHEAP_CHUNK;
     // Update the end pointer
     METAHEAP_END = METAHEAP_BASE + BLOCK_SIZE;
 }
@@ -51,6 +30,8 @@ void* malloc(size_t size){
     __init_meta_heap();
     // Get the call site address to malloc
     void* p = __builtin_return_address(0);
+    // Get a pool hash table entry
+    //struct phtEntry* poolTablePtr = phtSearch(p, size);
     return (void*) 0xaabbccdd;
 }
 
