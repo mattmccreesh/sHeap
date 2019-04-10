@@ -32,12 +32,6 @@ void print_address_hex(void* p0) {
   write_char('\n');
 }
 
-// Global Meta-Heap Pointers
-void* METAHEAP_BASE = NULL; // First value of our metaheap
-void* METAHEAP_END = NULL; // First non-valid value
-void* NEXT_FREE_METAHEAP_CHUNK = NULL; // Next allocated but unused metaheap location
-void* POOL_HASHTABLE_BASE = NULL; // Points to start of the pool hashtable
-
 // Kick-off the initialization process of the metaheap construction
 void __init_meta_heap(){
     // Map out the metaheap
