@@ -38,10 +38,14 @@ void* METAHEAP_END = NULL; // First non-valid value
 void* NEXT_FREE_METAHEAP_CHUNK = NULL; // Next allocated but unused metaheap location
 void* POOL_HASHTABLE_BASE = NULL; // Points to start of the pool hashtable
 
-// 
+// Kick-off the initialization process of the metaheap construction
 void __init_meta_heap(){
     // Map out the metaheap
     METAHEAP_BASE = mmap(0, BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
+    // Set the next free pointer
+    NEXT_FREE_METAHEAP_CHUNK = METAHEAP_BASE;
+    // Set the pool HT base
+    POOL_HASHTABLE_BASE = NEXT_FREE_METAHEAP_CHUNK;
 
     // Update the end pointer
     METAHEAP_END = METAHEAP_BASE + BLOCK_SIZE;
