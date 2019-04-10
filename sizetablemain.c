@@ -7,7 +7,7 @@ extern void* __SHEAP_SIZETABLE_END;
 int main()
 {
     initialize_sizetable(20);
-    printf("%d\n", sizeof(struct size_table_elem));
+    printf("%ld\n", sizeof(struct size_table_elem));
     printf("%p\n", __SHEAP_SIZETABLE_START);
     printf("%p\n\n\n", __SHEAP_SIZETABLE_END);
     /*
