@@ -1,4 +1,5 @@
 #include "sizetable.h"
+#include "sheap.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -9,6 +10,12 @@ void* __SHEAP_SIZETABLE_START;
 void* __SHEAP_SIZETABLE_END;
 struct size_table_elem* __SHEAP_SIZETABLE_NEXT;
 
+//stub function to replace with real alloction function
+void* getFreeBlockAddress()
+{
+    return (void*) 0xaabbccdd;
+}
+
 void initialize_sizetable(int nElems)
 {
     __SHEAP_SIZETABLE_START = mmap(0, nElems*sizeof(struct size_table_elem), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
@@ -16,16 +23,23 @@ void initialize_sizetable(int nElems)
     __SHEAP_SIZETABLE_END = __SHEAP_SIZETABLE_START + nElems*sizeof(struct size_table_elem);
 }
 
+//expand size table to support more allocation sites. table will likely end up fragmented in address space
 void expand_sizetable(int nElems)
 {
-    mmap(__SHEAP_SIZETABLE_END, nElems*sizeof(struct size_table_elem), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
-    __SHEAP_SIZETABLE_END += nElems*sizeof(struct size_table_elem);
+    __SHEAP_SIZETABLE_NEXT = mmap(__SHEAP_SIZETABLE_END, nElems*sizeof(struct size_table_elem), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
+    __SHEAP_SIZETABLE_END = __SHEAP_SIZETABLE_NEXT + nElems*sizeof(struct size_table_elem);
 }
 
-struct size_table_elem* create_sizetable_elem(){
+struct size_table_elem* create_sizetable_elem(size_t allocSize){
+    if(allocSize > BLOCK_SIZE*NUM_LARGE_SIZE_CLASSES){
+        exit(1);//invalid allocation size
+    }
     if((void*)__SHEAP_SIZETABLE_NEXT >= __SHEAP_SIZETABLE_END){
+        //printf("expanding\n");
         expand_sizetable(10);//should use intelligently decided constant
     }
+    size_t size_class = allocSize/BLOCK_SIZE;
     struct size_table_elem* ret = __SHEAP_SIZETABLE_NEXT++;
+    ret->freeptr[size_class] = getFreeBlockAddress();//stub function to be replaced
     return ret;
 }
