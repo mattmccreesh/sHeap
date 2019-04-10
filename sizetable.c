@@ -53,3 +53,16 @@ void* get_sizetable_freeptr(struct size_table_elem* tableElem, size_t allocSize)
     }
     return tableElem->freeptr[size_class];
 }
+
+/*
+void allocate_block_from_sizetable(struct size_table_elem* tableElem, size_t allocSize)
+{
+    void* block = get_sizetable_freeptr(tableElem, allocSize);i
+    size_t size_class = allocSize/BLOCK_SIZE;
+    if(block == NULL){
+        tableElem->freeptr[size_class] = getFreeBlockAddress();
+    }
+    else{
+        //call function from freelist to remove from freelist
+    } 
+}*/
