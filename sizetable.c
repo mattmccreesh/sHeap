@@ -16,6 +16,7 @@ void* getFreeBlockAddress()
     return (void*) 0xaabbccdd;
 }
 
+//could pull out nElems to be a constant
 void initialize_sizetable(int nElems)
 {
     __SHEAP_SIZETABLE_START = mmap(0, nElems*sizeof(struct size_table_elem), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
@@ -42,4 +43,13 @@ struct size_table_elem* create_sizetable_elem(size_t allocSize){
     struct size_table_elem* ret = __SHEAP_SIZETABLE_NEXT++;
     ret->freeptr[size_class] = getFreeBlockAddress();//stub function to be replaced
     return ret;
+}
+
+void* get_sizetable_freeptr(struct size_table_elem* tableElem, size_t allocSize)
+{
+    size_t size_class = allocSize/BLOCK_SIZE;
+    if(size_class >= NUM_LARGE_SIZE_CLASSES){
+        exit(1);//allocation size too large
+    }
+    return tableElem->freeptr[size_class];
 }

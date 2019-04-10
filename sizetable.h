@@ -22,5 +22,6 @@ void initialize_sizetable(int nElems);
 void expand_sizetable(int nElems);
 //return pointer to struct
 struct size_table_elem* create_sizetable_elem(size_t allocSize);
+void* get_sizetable_freeptr(struct size_table_elem*, size_t allocSize);
 
 #endif
