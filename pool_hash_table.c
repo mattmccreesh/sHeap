@@ -3,11 +3,14 @@
 #include "pool_hash_table.h"
 
 // Load in the pool ht pointer
-// TODO: vvv This won't compile vvv
-struct phtEntry* POOL_HASH_TABLE = POOL_HASH_TABLE_BASE;
+struct phtEntry* POOL_HASH_TABLE = NULL;
 
 // Load in the pool ht pointer
 struct phtEntry* POOL_HASH_TABLE;
+
+void __init_pht(){
+    POOL_HASH_TABLE = POOL_HASH_TABLE_BASE;
+}
 
 // Generates a hash value for the callSite
 int phtHash(void* callSite){

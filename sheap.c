@@ -22,6 +22,8 @@ void __init_meta_heap(){
     POOL_HASH_TABLE_BASE = NEXT_FREE_METAHEAP_CHUNK;
     // Update the end pointer
     METAHEAP_END = METAHEAP_BASE + BLOCK_SIZE;
+    // 
+    __init_pht();
 }
 
 // Allocates the memory and returns a pointer to it

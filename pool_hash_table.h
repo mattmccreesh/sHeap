@@ -23,5 +23,6 @@ struct phtEntry {
 int phtHash(void* callSite);
 // Searches for a hash table entry
 struct phtEntry* phtSearch(void* callSite, size_t allocSize);
+void __init_pht();
 
 #endif
