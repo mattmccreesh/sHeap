@@ -29,4 +29,7 @@ int main()
         v = get_sizetable_freeptr(x[i], 0);//should be null pointer besides first 2 iterations of loop
         printf("%p\n", v);
     }
+    printf("\n\n");
+    int class = get_sizeclass_index(131073);
+    printf("%d", class);
 }

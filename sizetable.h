@@ -25,5 +25,5 @@ struct size_table_elem* create_sizetable_elem(size_t allocSize);
 void* get_sizetable_freeptr(struct size_table_elem*, size_t allocSize);
 //todo
 //void allocate_block_from_sizetable(struct size_table_elem*, size_t);
-
+int get_sizeclass_index(size_t);
 #endif

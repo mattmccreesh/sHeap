@@ -66,3 +66,14 @@ void allocate_block_from_sizetable(struct size_table_elem* tableElem, size_t all
         //call function from freelist to remove from freelist
     } 
 }*/
+
+int get_sizeclass_index(size_t allocSize){
+    int index = 0;
+    allocSize--;//16KB can fit on 1 block, so account for that here
+    allocSize = allocSize>>14;
+    while(allocSize != 0){
+        allocSize = allocSize>>1;
+        index++;
+    }
+    return index;
+}
