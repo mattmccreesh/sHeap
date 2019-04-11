@@ -15,16 +15,13 @@ void* __SHEAP_BASE = NULL;
 // Kick-off the initialization process of the metaheap construction
 void __init_sheap(){
     // Allocate space
-    allocate_blocks(4);
-    /*
     __SHEAP_BASE = allocate_blocks(__SHEAP_PHT_BLOCKS +
                                    __SHEAP_FLIST_BLOCKS +
                                    __SHEAP_ST_BLOCKS);
-    */
     // Initialize the system components
-    //void* pht_end = __init_pht(__SHEAP_BASE);
-    //void* st_end = __init_st(pht_end);
-    //void* flist_end = __init_flist(st_end);
+    void* pht_end = __init_pht(__SHEAP_BASE);
+    void* st_end = __init_st(pht_end);
+    void* flist_end = __init_flist(st_end);
 }
 
 // Allocates the memory and returns a pointer to it
