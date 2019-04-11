@@ -5,9 +5,7 @@
 // Load in the pool ht pointer
 struct phtEntry* POOL_HASH_TABLE = NULL;
 
-// Load in the pool ht pointer
-struct phtEntry* POOL_HASH_TABLE;
-
+// Initializes the pht ptr
 void __init_pht(){
     // Populate the pointer with papa pointer
     POOL_HASH_TABLE = POOL_HASH_TABLE_BASE;

@@ -7,23 +7,10 @@
 #include "pool_hash_table.h"
 
 // Load & define global ptrs
-void* METAHEAP_BASE = NULL;
-void* METAHEAP_END = NULL;
-void* POOL_HASH_TABLE_BASE = NULL;
-void* NEXT_FREE_METAHEAP_CHUNK = NULL;
+void* PHT_BASE = NULL;
 
 // Kick-off the initialization process of the metaheap construction
 void __init_meta_heap(){
-    // Map out the metaheap
-    METAHEAP_BASE = mmap(0, BLOCK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
-    // Set the next free pointer
-    NEXT_FREE_METAHEAP_CHUNK = METAHEAP_BASE;
-    // Set the pool HT base
-    POOL_HASH_TABLE_BASE = NEXT_FREE_METAHEAP_CHUNK;
-    // Update the end pointer
-    METAHEAP_END = METAHEAP_BASE + BLOCK_SIZE;
-    // 
-    __init_pht();
 }
 
 // Allocates the memory and returns a pointer to it
