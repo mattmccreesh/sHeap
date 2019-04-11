@@ -12,7 +12,7 @@ all: $(LIB)
 $(LIB): sizetable.c sheap.c pool_hash_table.c main.c alloc.c flist.c
 	$(CC) $(MAIN) -o $(EXE)
 	$(CC) -g -c $(OBJ)
-	$(CC) -shared -fPIC sheap.c -o $(LIB)
+	$(CC) -shared -fPIC sheap.c $(OBJ) -o $(LIB)
 
 clean:
 	$(RM) $(EXE)
