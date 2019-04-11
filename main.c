@@ -26,14 +26,7 @@ void print_address_hex(void* p0) {
   write_char('\n');
 }
 
-
 int main(){
-    int fd = open("/tmp/sheap", O_RDWR);
-    print_address_hex(fd);
-    short* p = (short*) mmap(0, 16<<10, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
-    print_address_hex(p);
-
-    p[1000] = (short) 5;
-
-    printf("%d", p[1000]);
+    void* p = malloc(16);
+    //print_address_hex(p);
 }
