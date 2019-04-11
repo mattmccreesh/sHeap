@@ -2,6 +2,6 @@
 #define __SHEAP_ALLOC_H
 #include "sheap.h"
 
-void* allocate_blocks ( int nBlocks );
+void* allocate_blocks ( int n_blocks );
 
 #endif
