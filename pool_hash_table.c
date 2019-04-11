@@ -9,6 +9,7 @@ struct phtEntry* POOL_HASH_TABLE = NULL;
 struct phtEntry* POOL_HASH_TABLE;
 
 void __init_pht(){
+    // Populate the pointer with papa pointer
     POOL_HASH_TABLE = POOL_HASH_TABLE_BASE;
 }
 
