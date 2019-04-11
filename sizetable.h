@@ -4,26 +4,27 @@
 #include <stddef.h>
 
 #define NUM_LARGE_SIZE_CLASSES 500
+#define __SHEAP_ST_BLOCKS 2
 
 //can probably do this with better space efficiency
 //this does have good time efficiency for lookups though
 //500 to suppport allocations up to 8 MB which covered all in Cling paper
-struct size_table_elem {
+struct st_elem {
     void* freeptr[NUM_LARGE_SIZE_CLASSES];
 };
 
 // Externs
-extern void* __SHEAP_SIZETABLE_START;//probably not important at all
-extern void* __SHEAP_SIZETABLE_END;
-extern struct size_table_elem* __SHEAP_SIZETABLE_NEXT;
+extern void* __SHEAP_ST_START;//probably not important at all
+extern void* __SHEAP_ST_END;
+extern struct st_elem* __SHEAP_ST_NEXT;
 
 //update global constants
-void initialize_sizetable(int nElems);
-void expand_sizetable(int nElems);
+void* __init_st(void* start_block);
 //return pointer to struct
-struct size_table_elem* create_sizetable_elem(size_t allocSize);
-void* get_sizetable_freeptr(struct size_table_elem*, size_t allocSize);
+struct st_elem* create_st_elem(size_t alloc_size);
+void* st_get_freeptr(struct st_elem*, size_t alloc_size);
+void* st_allocate_block(struct st_elem** pool_ptr, size_t alloc_size, void* call_site);
 //todo
-//void allocate_block_from_sizetable(struct size_table_elem*, size_t);
+//void allocate_block_from_sizetable(struct st_elem*, size_t);
 int get_sizeclass_index(size_t);
 #endif

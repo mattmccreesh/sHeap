@@ -6,58 +6,48 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
-void* __SHEAP_SIZETABLE_START;
-void* __SHEAP_SIZETABLE_END;
-struct size_table_elem* __SHEAP_SIZETABLE_NEXT;
+void* __SHEAP_ST_START;
+void* __SHEAP_ST_END;
+struct st_elem* __SHEAP_ST_NEXT;
 
 //stub function to replace with real alloction function
-void* getFreeBlockAddress()
+void* get_free_block_address()
 {
     return (void*) 0xaabbccdd;
 }
 
 //could pull out nElems to be a constant
-void initialize_sizetable(int nElems)
+void* __init_st(void* start_addr)
 {
-    __SHEAP_SIZETABLE_START = mmap(0, nElems*sizeof(struct size_table_elem), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
-    __SHEAP_SIZETABLE_NEXT = __SHEAP_SIZETABLE_START;
-    __SHEAP_SIZETABLE_END = __SHEAP_SIZETABLE_START + nElems*sizeof(struct size_table_elem);
+    __SHEAP_ST_START = start_addr;
+    __SHEAP_ST_NEXT = __SHEAP_ST_START;
+    __SHEAP_ST_END = __SHEAP_ST_START + (BLOCK_SIZE * __SHEAP_ST_BLOCKS);
+    return __SHEAP_ST_END;
 }
 
-//expand size table to support more allocation sites. table will likely end up fragmented in address space
-void expand_sizetable(int nElems)
-{
-    __SHEAP_SIZETABLE_NEXT = mmap(__SHEAP_SIZETABLE_END, nElems*sizeof(struct size_table_elem), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
-    __SHEAP_SIZETABLE_END = __SHEAP_SIZETABLE_NEXT + nElems*sizeof(struct size_table_elem);
-}
-
-struct size_table_elem* create_sizetable_elem(size_t allocSize){
-    if(allocSize > BLOCK_SIZE*NUM_LARGE_SIZE_CLASSES){
+struct st_elem* create_st_elem(size_t alloc_size){
+    if(alloc_size > BLOCK_SIZE*NUM_LARGE_SIZE_CLASSES){
         exit(1);//invalid allocation size
     }
-    if((void*)__SHEAP_SIZETABLE_NEXT >= __SHEAP_SIZETABLE_END){
-        //printf("expanding\n");
-        expand_sizetable(10);//should use intelligently decided constant
-    }
-    size_t size_class = allocSize/BLOCK_SIZE;
-    struct size_table_elem* ret = __SHEAP_SIZETABLE_NEXT++;
-    ret->freeptr[size_class] = getFreeBlockAddress();//stub function to be replaced
+    size_t size_class = get_sizeclass_index(alloc_size);
+    struct st_elem* ret = __SHEAP_ST_NEXT++;
+    ret->freeptr[size_class] = get_free_block_address();//stub function to be replaced
     return ret;
 }
 
-void* get_sizetable_freeptr(struct size_table_elem* tableElem, size_t allocSize)
+void* st_get_freeptr(struct st_elem* table_elem, size_t alloc_size)
 {
-    size_t size_class = allocSize/BLOCK_SIZE;
+    size_t size_class = get_sizeclass_index(alloc_size);
     if(size_class >= NUM_LARGE_SIZE_CLASSES){
         exit(1);//allocation size too large
     }
-    return tableElem->freeptr[size_class];
+    return table_elem->freeptr[size_class];
 }
 
 /*
-void allocate_block_from_sizetable(struct size_table_elem* tableElem, size_t allocSize)
+void allocate_block_from_sizetable(struct st_elem* table_elem, size_t allocSize)
 {
-    void* block = get_sizetable_freeptr(tableElem, allocSize);i
+    void* block = st_get_freeptr(tableElem, allocSize);i
     size_t size_class = allocSize/BLOCK_SIZE;
     if(block == NULL){
         tableElem->freeptr[size_class] = getFreeBlockAddress();
@@ -67,12 +57,12 @@ void allocate_block_from_sizetable(struct size_table_elem* tableElem, size_t all
     } 
 }*/
 
-int get_sizeclass_index(size_t allocSize){
+int get_sizeclass_index(size_t alloc_size){
     int index = 0;
-    allocSize--;//16KB can fit on 1 block, so account for that here
-    allocSize = allocSize>>14;
-    while(allocSize != 0){
-        allocSize = allocSize>>1;
+    alloc_size--;//16KB can fit on 1 block, so account for that here
+    alloc_size = alloc_size>>14;
+    while(alloc_size != 0){
+        alloc_size = alloc_size>>1;
         index++;
     }
     return index;

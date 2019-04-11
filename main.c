@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <sys/mman.h>
 
 void write_char(char c){
@@ -28,5 +29,5 @@ void print_address_hex(void* p0) {
 
 int main(){
     void* p = malloc(16);
-    //print_address_hex(p);
+    print_address_hex(p);
 }

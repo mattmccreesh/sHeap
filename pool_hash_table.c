@@ -6,7 +6,7 @@
 struct pht_entry* PHT_BASE = NULL;
 
 // Initializes the pht ptr
-void __init_pht(void* block_start){
+void* __init_pht(void* block_start){
     // Populate the pointer with papa pointer
     PHT_BASE = block_start;
     // Return the end of PHT section

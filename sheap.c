@@ -27,15 +27,16 @@ void __init_sheap(){
 // Allocates the memory and returns a pointer to it
 void* malloc(size_t size){
     // Check for sheap init
-    if(!__SHEAP_BASE){
-        __init_sheap();
-    }
+    //if(!__SHEAP_BASE){
+    //    __init_sheap();
+    //}
     // Get the call site address to malloc
     void* call_site = __builtin_return_address(0);
     // Search for pool ptr
-    struct pht_entry* pht_e = pht_search(call_site);
+    //struct pht_entry* pht_e = pht_search(call_site);
     // Return the memory address from ST
-    return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+    //return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+    return 0xaabbccdd;
 }
 
 // Does the same thing as malloc, but zeroes out the memory

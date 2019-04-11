@@ -8,13 +8,21 @@ extern void* __SHEAP_FLIST_START;
 extern void* __SHEAP_BLOCK_START;
 extern void* __SHEAP_FLIST_UNUSED;
 
-struct node {
-  struct node* next;
-  struct node* prev;
-  int nBlocks;
+#define __SHEAP_FLIST_BLOCKS 4
+
+struct flist_node {
+  struct flist_node* next;
+  struct flist_node* prev;
+  int n_blocks;
   void* type;
   int size;
 };
+
+
+/*
+*
+*/
+void* __init_flist(void* start_addr);
 
 /**
  * Allocates a new block, or reuses an old free one
@@ -23,13 +31,13 @@ struct node {
  * @param head the address of the address of the head of this size-class
  * @returns The address allocated (The head pointer is potentially updated as well)
  */
-void* gib_space ( int nBlocks, void* type, struct node** head );
+void* flist_alloc_space ( int n_blocks, void* type, struct flist_node** head );
 
 /**
  * Frees a block, adding the allocated block to the freelist
  * @param loc The location to free (should be the start of the allocation)
  * @param head The start of the linked list for this size class
  */
-void kill_space ( void* loc, struct node** head );
+void flist_dealloc_space ( void* loc, struct flist_node** head );
 
 #endif
