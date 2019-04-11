@@ -3,21 +3,24 @@
 #include "pool_hash_table.h"
 
 // Load in the pool ht pointer
-struct phtEntry* POOL_HASH_TABLE = NULL;
+struct pht_entry* PHT_BASE = NULL;
 
 // Initializes the pht ptr
-void __init_pht(){
+void __init_pht(void* block_start){
     // Populate the pointer with papa pointer
-    POOL_HASH_TABLE = POOL_HASH_TABLE_BASE;
+    PHT_BASE = block_start;
+    // Return the end of PHT section
+    return PHT_BASE + (BLOCK_SIZE * __SHEAP_PHT_BLOCKS);
 }
 
-// Generates a hash value for the callSite
-int phtHash(void* callSite){
+// Generates a hash value for the call_site
+int pht_hash(void* call_site){
+    // TODO: This needs to be less garbage
     return 0;    
 }
 
 // Searches for a hash table entry
-struct phtEntry* phtSearch(void* callSite, size_t allocSize){
+struct pht_entry* pht_search(void* call_site){
     /*
     // Get the supposed offset into the hash table
     int offset = phtHash(callSite) * sizeof(struct phtEntry);
