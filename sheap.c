@@ -1,8 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdint.h>
-#include <fcntl.h>
-#include <sys/mman.h>
 #include "sheap.h"
 #include "alloc.h"
 #include "pool_hash_table.h"
