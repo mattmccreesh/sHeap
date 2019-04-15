@@ -1,5 +1,6 @@
 #include "sizetable.h"
 #include "sheap.h"
+#include "flist.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -10,12 +11,6 @@ void* __SHEAP_ST_START;
 void* __SHEAP_ST_END;
 struct st_elem* __SHEAP_ST_NEXT;
 
-//stub function to replace with real alloction function
-void* get_free_block_address()
-{
-    return (void*) 0xaabbccdd;
-}
-
 //could pull out nElems to be a constant
 void* __init_st(void* start_addr)
 {
@@ -25,37 +20,28 @@ void* __init_st(void* start_addr)
     return __SHEAP_ST_END;
 }
 
-struct st_elem* create_st_elem(size_t alloc_size){
-    if(alloc_size > BLOCK_SIZE*NUM_LARGE_SIZE_CLASSES){
-        exit(1);//invalid allocation size
+void* st_allocate_block(struct st_elem** pool_ptr, size_t alloc_size, void* call_site){
+    if(*pool_ptr == 0){
+        *pool_ptr = create_st_elem(alloc_size);
     }
     size_t size_class = get_sizeclass_index(alloc_size);
+    int num_blocks = 1<<size_class;//should allocate all blocks for size class even if some unused for specific allocation
+    return flist_alloc_space(num_blocks, call_site, &((*pool_ptr)->freeptr[size_class])); 
+}
+
+
+//TODO: ensure I don't overflow into next part of heap data
+struct st_elem* create_st_elem(){
     struct st_elem* ret = __SHEAP_ST_NEXT++;
-    ret->freeptr[size_class] = get_free_block_address();//stub function to be replaced
     return ret;
 }
 
 void* st_get_freeptr(struct st_elem* table_elem, size_t alloc_size)
 {
     size_t size_class = get_sizeclass_index(alloc_size);
-    if(size_class >= NUM_LARGE_SIZE_CLASSES){
-        exit(1);//allocation size too large
-    }
     return table_elem->freeptr[size_class];
 }
 
-/*
-void allocate_block_from_sizetable(struct st_elem* table_elem, size_t allocSize)
-{
-    void* block = st_get_freeptr(tableElem, allocSize);i
-    size_t size_class = allocSize/BLOCK_SIZE;
-    if(block == NULL){
-        tableElem->freeptr[size_class] = getFreeBlockAddress();
-    }
-    else{
-        //call function from freelist to remove from freelist
-    } 
-}*/
 
 int get_sizeclass_index(size_t alloc_size){
     int index = 0;
