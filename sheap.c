@@ -15,6 +15,7 @@ void __init_sheap(){
     __SHEAP_BASE = allocate_blocks(__SHEAP_PHT_BLOCKS +
                                    __SHEAP_FLIST_BLOCKS +
                                    __SHEAP_ST_BLOCKS);
+    print_address_hex(__SHEAP_BASE);
     // Initialize the system components
     void* pht_end = __init_pht(__SHEAP_BASE);
     void* st_end = __init_st(pht_end);
@@ -30,10 +31,10 @@ void* malloc(size_t size){
     // Get the call site address to malloc
     void* call_site = __builtin_return_address(0);
     // Search for pool ptr
-    //struct pht_entry* pht_e = pht_search(call_site);
+    struct pht_entry* pht_e = pht_search(call_site);
     // Return the memory address from ST
-    //return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
-    return 0xaabbccdd;
+    return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+    //return 0xaabbccdd;
 }
 
 // Does the same thing as malloc, but zeroes out the memory

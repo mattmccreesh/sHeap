@@ -21,19 +21,17 @@ int pht_hash(void* call_site){
 
 // Searches for a hash table entry
 struct pht_entry* pht_search(void* call_site){
-    /*
     // Get the supposed offset into the hash table
-    int offset = phtHash(callSite) * sizeof(struct phtEntry);
+    int offset = pht_hash(call_site) * sizeof(struct pht_entry);
     
-    // Check to see if a phtEntry exists here
-    if(POOL_HASH_TABLE+offset == 0x00000000){
+    // Check to see if a pht_entry exists here
+    if(PHT_BASE+offset == 0x0000000000000000){
         // If not, lets create one
-        (POOL_HASH_TABLE+offset)->callSite = callSite;
-        (POOL_HASH_TABLE+offset)->poolPtr = create_sizetable_elem(allocSize);
+        (PHT_BASE+offset)->call_site = call_site;
+        // This may not be needed, but idk if the memory will be zeroed out
+        (PHT_BASE+offset)->pool_ptr = 0x0000000000000000;
     }
 
-    // Return the phtEntry ptr
-    return (struct phtEntry*) POOL_HASH_TABLE+offset;
-    */
-    return NULL;
+    // Return the pht_entry ptr
+    return (struct pht_entry*) PHT_BASE+offset;
 }

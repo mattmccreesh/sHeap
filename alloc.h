@@ -3,5 +3,6 @@
 #include "sheap.h"
 
 void* allocate_blocks ( int n_blocks );
+void print_address_hex(void* ptr);
 
 #endif

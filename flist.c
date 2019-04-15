@@ -1,7 +1,7 @@
 #include "flist.h"
 #include "alloc.h"
 #include <stdlib.h>
-
+#include <stdint.h>
 
 void* __SHEAP_FLIST_START;
 void* __SHEAP_BLOCK_START;
@@ -38,7 +38,10 @@ void* flist_alloc_space ( int n_blocks, void* type, struct flist_node** head ) {
   int size;
   size = n_blocks * BLOCK_SIZE + 1;
 
+  print_address_hex(head);
+  print_address_hex(__SHEAP_FLIST_START);
   struct flist_node* _head = *head;
+  /*
   if ( _head == NULL ) {
     void* loc = allocate_blocks ( n_blocks );
     struct flist_node* node = (struct flist_node*) __SHEAP_FLIST_UNUSED;
@@ -58,6 +61,8 @@ void* flist_alloc_space ( int n_blocks, void* type, struct flist_node** head ) {
     *head = nhead;
     return loc;
   }
+  */
+  return 0x0000000000000000;
 }
 
 void flist_dealloc_space ( void* loc, struct flist_node** head ) {
