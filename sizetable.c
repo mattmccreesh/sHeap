@@ -26,9 +26,6 @@ void* __init_st(void* start_addr)
 }
 
 struct st_elem* create_st_elem(size_t alloc_size){
-    if(alloc_size > BLOCK_SIZE*NUM_LARGE_SIZE_CLASSES){
-        exit(1);//invalid allocation size
-    }
     size_t size_class = get_sizeclass_index(alloc_size);
     struct st_elem* ret = __SHEAP_ST_NEXT++;
     ret->freeptr[size_class] = get_free_block_address();//stub function to be replaced
@@ -38,9 +35,6 @@ struct st_elem* create_st_elem(size_t alloc_size){
 void* st_get_freeptr(struct st_elem* table_elem, size_t alloc_size)
 {
     size_t size_class = get_sizeclass_index(alloc_size);
-    if(size_class >= NUM_LARGE_SIZE_CLASSES){
-        exit(1);//allocation size too large
-    }
     return table_elem->freeptr[size_class];
 }
 
