@@ -28,6 +28,9 @@ void print_address_hex(void* p0) {
 }
 
 int main(){
-    void* p = malloc(16);
-    print_address_hex(p);
+    char* ptr = (char*) malloc(sizeof(char));
+    *ptr = 'a';
+    print_address_hex(ptr);
+    write_char(*ptr);
+    
 }
