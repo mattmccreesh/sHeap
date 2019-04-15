@@ -25,11 +25,11 @@ struct pht_entry* pht_search(void* call_site){
     int offset = pht_hash(call_site) * sizeof(struct pht_entry);
     
     // Check to see if a pht_entry exists here
-    if(PHT_BASE+offset == 0x0000000000000000){
+    if(PHT_BASE+offset == NULL){
         // If not, lets create one
         (PHT_BASE+offset)->call_site = call_site;
         // This may not be needed, but idk if the memory will be zeroed out
-        (PHT_BASE+offset)->pool_ptr = 0x0000000000000000;
+        (PHT_BASE+offset)->pool_ptr = NULL;
     }
 
     // Return the pht_entry ptr
