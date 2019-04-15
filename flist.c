@@ -7,6 +7,11 @@ void* __SHEAP_FLIST_START;
 void* __SHEAP_BLOCK_START;
 void* __SHEAP_FLIST_UNUSED;
 
+/**
+ * Initializes the global variables for the flist
+ * @param start_addr The start of the flist
+ * @return A pointer to the end of the flist
+ */
 void* __init_flist(void* start_addr){
     __SHEAP_FLIST_START = start_addr;
     __SHEAP_FLIST_UNUSED = start_addr;
@@ -14,6 +19,13 @@ void* __init_flist(void* start_addr){
     return __SHEAP_BLOCK_START;
 }
 
+/**
+ * Lookups up the location of a heap object corresponding to a given flist node
+ *   Validates the pointer, and exits on failure
+ * @param node The meta-heap node to lookup
+ * @return The location corresponding to that node
+ * 
+ */
 void* get_location_from_node ( struct flist_node* node ) {
   // Ensure the node is valid
   if ( (long)node & 0x1111 ) {
@@ -22,6 +34,12 @@ void* get_location_from_node ( struct flist_node* node ) {
   return ((void*)node - __SHEAP_FLIST_START) * BLOCK_SIZE + __SHEAP_BLOCK_START;
 }
 
+/**
+ * Lookups the flist node corresponding to a heap location 
+ *   Validates the pointer, exits on failure
+ * @param loc A pointer to the object to lookup
+ * 
+ */
 struct flist_node* get_node_from_location ( void* loc ) {
   // Compute the offset (the number of blocks this location is from the start of the blocks
   long offset = (loc - __SHEAP_BLOCK_START) / BLOCK_SIZE;
@@ -38,8 +56,10 @@ void* flist_alloc_space ( int n_blocks, void* type, struct flist_node** head ) {
   int size;
   size = n_blocks * BLOCK_SIZE + 1;
 
+  // Do we have a node to use?
   struct flist_node* _head = *head;
   if ( _head == NULL ) {
+    // No. Get a new one
     void* loc = allocate_blocks ( n_blocks );
     struct flist_node* node = (struct flist_node*) __SHEAP_FLIST_UNUSED;
     node->next = NULL;
@@ -49,12 +69,14 @@ void* flist_alloc_space ( int n_blocks, void* type, struct flist_node** head ) {
     node->size = size;
     return loc;
   } else {
+    // Take the first from the list
     struct flist_node* nhead = _head->next;
     void* loc = get_location_from_node(_head);
     _head->next = NULL;
     if ( nhead != NULL ) {
       nhead->prev = NULL;
     }
+    // Update the head
     *head = nhead;
     return loc;
   }
@@ -65,9 +87,11 @@ void flist_dealloc_space ( void* loc, struct flist_node** head ) {
   struct flist_node* _head = *head;
   // Now we need to free the location
   if ( _head == NULL ) {
+    // Initialize the free list
     _head = node;
     _head->next = _head->prev = NULL;
   } else {
+    // Append it to the start of the freelist
     node->next = _head;
     _head->prev = node;
     node->prev = NULL;
