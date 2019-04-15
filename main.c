@@ -29,8 +29,19 @@ void print_address_hex(void* p0) {
 
 int main(){
     char* ptr = (char*) malloc(sizeof(char));
-    *ptr = 'a';
+    char* ptr1 = (char*) malloc(sizeof(char));
+    char* ptr2 = (char*) malloc(sizeof(char));
+    char* ptr3 = (char*) malloc(sizeof(char));
+    char* ptr4 = (char*) malloc(sizeof(char));
+    char* ptr5 = (char*) malloc(sizeof(char));
     print_address_hex(ptr);
-    write_char(*ptr);
+    print_address_hex(ptr1);
+    print_address_hex(ptr2);
+    print_address_hex(ptr3);
+    print_address_hex(ptr4);
+    print_address_hex(ptr5);
+    //*ptr = 'a';
+    //print_address_hex(ptr);
+    //write_char(*ptr);
     
 }
