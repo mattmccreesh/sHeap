@@ -10,7 +10,7 @@ void* __init_pht(void* block_start){
     // Populate the pointer with papa pointer
     PHT_BASE = block_start;
     // Return the end of PHT section
-    return PHT_BASE + (BLOCK_SIZE * __SHEAP_PHT_BLOCKS);
+    return block_start + (BLOCK_SIZE * __SHEAP_PHT_BLOCKS);
 }
 
 // Generates a hash value for the call_site

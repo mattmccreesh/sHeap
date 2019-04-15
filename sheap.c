@@ -15,7 +15,6 @@ void __init_sheap(){
     __SHEAP_BASE = allocate_blocks(__SHEAP_PHT_BLOCKS +
                                    __SHEAP_FLIST_BLOCKS +
                                    __SHEAP_ST_BLOCKS);
-    print_address_hex(__SHEAP_BASE);
     // Initialize the system components
     void* pht_end = __init_pht(__SHEAP_BASE);
     void* st_end = __init_st(pht_end);
