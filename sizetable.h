@@ -3,12 +3,11 @@
 #include "sheap.h"
 #include <stddef.h>
 
-#define NUM_LARGE_SIZE_CLASSES 500
+#define NUM_LARGE_SIZE_CLASSES 50
 #define __SHEAP_ST_BLOCKS 2
 
-//can probably do this with better space efficiency
-//this does have good time efficiency for lookups though
-//500 to suppport allocations up to 8 MB which covered all in Cling paper
+//50 size classes for exponential size class growth
+//supports max size_t size allocation request on 64 bit system
 struct st_elem {
     void* freeptr[NUM_LARGE_SIZE_CLASSES];
 };
