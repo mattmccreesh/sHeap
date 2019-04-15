@@ -15,4 +15,5 @@ $(LIB): sizetable.c sheap.c pool_hash_table.c main.c alloc.c flist.c
 
 clean:
 	$(RM) $(EXE)
+	$(RM) *.o
 	$(RM) $(LIB)
