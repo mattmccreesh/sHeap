@@ -1,16 +1,16 @@
 #ifndef __SHEAP_SIZETABLE_
 #define __SHEAP_SIZETABLE_
 #include "sheap.h"
+#include "flist.h"
 #include <stddef.h>
 
-#define NUM_LARGE_SIZE_CLASSES 500
+#define NUM_LARGE_SIZE_CLASSES 50
 #define __SHEAP_ST_BLOCKS 2
 
-//can probably do this with better space efficiency
-//this does have good time efficiency for lookups though
-//500 to suppport allocations up to 8 MB which covered all in Cling paper
+//50 size classes for exponential size class growth
+//supports max size_t size allocation request on 64 bit system
 struct st_elem {
-    void* freeptr[NUM_LARGE_SIZE_CLASSES];
+    struct flist_node* freeptr[NUM_LARGE_SIZE_CLASSES];
 };
 
 // Externs
@@ -21,7 +21,7 @@ extern struct st_elem* __SHEAP_ST_NEXT;
 //update global constants
 void* __init_st(void* start_block);
 //return pointer to struct
-struct st_elem* create_st_elem(size_t alloc_size);
+struct st_elem* create_st_elem();
 void* st_get_freeptr(struct st_elem*, size_t alloc_size);
 void* st_allocate_block(struct st_elem** pool_ptr, size_t alloc_size, void* call_site);
 //todo
