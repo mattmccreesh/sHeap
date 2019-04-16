@@ -11,7 +11,6 @@ void* __SHEAP_ST_START;
 void* __SHEAP_ST_END;
 struct st_elem* __SHEAP_ST_NEXT;
 
-//could pull out nElems to be a constant
 void* __init_st(void* start_addr)
 {
     __SHEAP_ST_START = start_addr;
@@ -33,6 +32,9 @@ void* st_allocate_block(struct st_elem** pool_ptr, size_t alloc_size, void* call
 //TODO: ensure I don't overflow into next part of heap data
 struct st_elem* create_st_elem(){
     struct st_elem* ret = __SHEAP_ST_NEXT++;
+    if((void*)__SHEAP_ST_NEXT > __SHEAP_ST_END){
+        exit(1);//we ran out of space for size table
+    }
     return ret;
 }
 
