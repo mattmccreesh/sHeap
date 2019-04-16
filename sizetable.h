@@ -22,7 +22,7 @@ extern struct st_elem* __SHEAP_ST_NEXT;
 void* __init_st(void* start_block);
 //return pointer to struct
 struct st_elem* create_st_elem();
-void* st_get_freeptr(struct st_elem*, size_t alloc_size);
+struct flist_node** st_get_freeptr(struct st_elem*, size_t alloc_size);
 void* st_allocate_block(struct st_elem** pool_ptr, size_t alloc_size, void* call_site);
 //todo
 //void allocate_block_from_sizetable(struct st_elem*, size_t);

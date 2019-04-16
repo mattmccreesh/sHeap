@@ -36,10 +36,10 @@ struct st_elem* create_st_elem(){
     return ret;
 }
 
-void* st_get_freeptr(struct st_elem* table_elem, size_t alloc_size)
+struct flist_node** st_get_freeptr(struct st_elem* table_elem, size_t alloc_size)
 {
     size_t size_class = get_sizeclass_index(alloc_size);
-    return table_elem->freeptr[size_class];
+    return &table_elem->freeptr[size_class];
 }
 
 
