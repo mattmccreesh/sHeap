@@ -6,7 +6,7 @@
 #include "sizetable.h"
 
 // Represents the number of entries in the HT
-#define POOL_HASH_TABLE_SIZE 250
+#define PHT_SIZE 250
 // Represents the number of alloc blocks for the HT
 #define __SHEAP_PHT_BLOCKS 3
 

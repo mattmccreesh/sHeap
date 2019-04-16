@@ -1,7 +1,7 @@
 #include "flist.h"
-#include "alloc.h"
+#include "util.h"
 #include <stdlib.h>
-
+#include <stdint.h>
 
 void* __SHEAP_FLIST_START;
 void* __SHEAP_BLOCK_START;
