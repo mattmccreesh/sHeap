@@ -13,8 +13,8 @@ extern void* __SHEAP_FLIST_UNUSED;
 struct flist_node {
   struct flist_node* next;
   struct flist_node* prev;
-  int n_blocks;
   void* type;
+  int n_blocks;
   int size;
 };
 

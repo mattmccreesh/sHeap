@@ -49,6 +49,7 @@ struct pht_entry* pht_search(void* call_site){
             }
         }
         // IF WE GET HERE THERE IS NO SPACE
+        write_char('p');
         exit(1);
     }
 

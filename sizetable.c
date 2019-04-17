@@ -1,6 +1,7 @@
 #include "sizetable.h"
 #include "sheap.h"
 #include "flist.h"
+#include "util.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -32,6 +33,7 @@ void* st_allocate_block(struct st_elem** pool_ptr, size_t alloc_size, void* call
 struct st_elem* create_st_elem(){
     struct st_elem* ret = __SHEAP_ST_NEXT++;
     if((void*)__SHEAP_ST_NEXT > __SHEAP_ST_END){
+        write_char('s');
         exit(1);//we ran out of space for size table
     }
     return ret;
