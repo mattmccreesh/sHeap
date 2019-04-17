@@ -23,6 +23,11 @@ void __init_sheap(){
 
 // Allocates the memory and returns a pointer to it
 void* malloc(size_t size){
+    // Handle 0-case
+    if(size == 0){
+        return NULL;
+    }
+
     // Check for sheap init
     if(!__SHEAP_BASE){
         __init_sheap();
@@ -38,7 +43,14 @@ void* malloc(size_t size){
 
 // Does the same thing as malloc, but zeroes out the memory
 void* calloc(size_t nitems, size_t size){
-    return (void*) 0xaabbccdd;
+    // Make a standard malloc call
+    char* l = (char*) malloc(nitems * size);
+    // Zero out the memory
+    for(int i=0; i<nitems*size; i++){
+        l[i] = 0;
+    }
+    // Return the zeroed memory to the user
+    return (void*) l;
 }
 
 // Given a pointer to memory and a size, it will attempt to resize the memory chunk

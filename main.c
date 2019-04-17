@@ -34,31 +34,8 @@ int* make_ptr(int num){
 }
 
 int main(){
-    /*
-    char* ptr = (char*) malloc(sizeof(char));
-    char* ptr1 = (char*) malloc(sizeof(char));
-    char* ptr2 = (char*) malloc(sizeof(char));
-    int* mp = make_ptr(4);
-    char* ptr3 = (char*) malloc(sizeof(char));
-    char* ptr4 = (char*) malloc(sizeof(char));
-    char* ptr5 = (char*) malloc(sizeof(char));
-    int* mp1 = make_ptr(6);
-    print_address_hex(ptr);
-    print_address_hex(ptr1);
-    print_address_hex(ptr2);
-    print_address_hex(ptr3);
-    print_address_hex(ptr4);
-    print_address_hex(ptr5);
-    print_address_hex(mp);
-    print_address_hex(mp1);*/
-    int* mp = make_ptr(4);
-    free(mp);
-    int* mp1 = make_ptr(4); 
-    print_address_hex(mp);
-    print_address_hex(mp1);
-    if(mp == mp1){
-        write_char('T');
-    }else{
-        write_char('P');
+    char* c = calloc(4, 16);
+    for(int i=0; i<16; i++){
+        printf("%c\n", c[i]);
     }
 }
