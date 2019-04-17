@@ -25,13 +25,14 @@ int pht_hash(void* call_site){
 struct pht_entry* pht_search(void* call_site){
     // Get the supposed offset into the hash table
     int offset = pht_hash(call_site);
-    
-    // Check to see if a pht_entry exists here
+
+    // Check to see if no pht_entry is occupying the slot
     if((PHT_BASE+offset)->call_site == NULL){
         // If not, lets create one
         (PHT_BASE+offset)->call_site = call_site;
         // This may not be needed, but idk if the memory will be zeroed out
         (PHT_BASE+offset)->pool_ptr = NULL;
+    // Checks to see if a collision is occurring
     }else if((PHT_BASE+offset)->call_site != call_site){
         for(int i=0; i<PHT_SIZE; i++){
             // Bump the offset
@@ -47,7 +48,6 @@ struct pht_entry* pht_search(void* call_site){
                 break;
             }
         }
-
         // IF WE GET HERE THERE IS NO SPACE
         exit(1);
     }

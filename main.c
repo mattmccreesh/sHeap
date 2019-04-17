@@ -50,4 +50,5 @@ int main(){
     print_address_hex(ptr5);
     print_address_hex(mp);
     print_address_hex(mp1);
+    free(ptr);
 }

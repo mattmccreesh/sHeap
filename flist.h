@@ -40,4 +40,6 @@ void* flist_alloc_space ( int n_blocks, void* type, struct flist_node** head );
  */
 void flist_dealloc_space ( void* loc, struct flist_node** head );
 
+struct flist_node* get_node_from_location ( void* loc );
+
 #endif
