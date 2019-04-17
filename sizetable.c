@@ -11,8 +11,7 @@ void* __SHEAP_ST_START;
 void* __SHEAP_ST_END;
 struct st_elem* __SHEAP_ST_NEXT;
 
-void* __init_st(void* start_addr)
-{
+void* __init_st(void* start_addr){
     __SHEAP_ST_START = start_addr;
     __SHEAP_ST_NEXT = __SHEAP_ST_START;
     __SHEAP_ST_END = __SHEAP_ST_START + (BLOCK_SIZE * __SHEAP_ST_BLOCKS);
@@ -38,8 +37,7 @@ struct st_elem* create_st_elem(){
     return ret;
 }
 
-struct flist_node** st_get_freeptr(struct st_elem* table_elem, size_t alloc_size)
-{
+struct flist_node** st_get_freeptr(struct st_elem* table_elem, size_t alloc_size){
     size_t size_class = get_sizeclass_index(alloc_size);
     return &table_elem->freeptr[size_class];
 }
