@@ -24,7 +24,7 @@ void* st_allocate_block(struct st_elem** pool_ptr, size_t alloc_size, void* call
     }
     size_t size_class = get_sizeclass_index(alloc_size);
     int num_blocks = 1<<size_class;//should allocate all blocks for size class even if some unused for specific allocation
-    return flist_alloc_space(num_blocks, call_site, &((*pool_ptr)->freeptr[size_class])); 
+    return flist_alloc_space(alloc_size, num_blocks, call_site, &((*pool_ptr)->freeptr[size_class])); 
 }
 
 
@@ -39,7 +39,7 @@ struct st_elem* create_st_elem(){
 
 struct flist_node** st_get_freeptr(struct st_elem* table_elem, size_t alloc_size){
     size_t size_class = get_sizeclass_index(alloc_size);
-    return &table_elem->freeptr[size_class];
+    return &(table_elem->freeptr[size_class]);
 }
 
 

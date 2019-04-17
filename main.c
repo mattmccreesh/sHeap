@@ -35,7 +35,7 @@ int* make_ptr(int num){
 
 int main(){
     char* ptr = (char*) malloc(sizeof(char));
-    char* ptr1 = (char*) malloc(sizeof(char));
+    /*char* ptr1 = (char*) malloc(sizeof(char));
     char* ptr2 = (char*) malloc(sizeof(char));
     int* mp = make_ptr(4);
     char* ptr3 = (char*) malloc(sizeof(char));
@@ -49,6 +49,7 @@ int main(){
     print_address_hex(ptr4);
     print_address_hex(ptr5);
     print_address_hex(mp);
-    print_address_hex(mp1);
-    //free(ptr);
+    print_address_hex(mp1);*/
+    //print_address_hex(ptr);
+    free(ptr);
 }

@@ -31,7 +31,7 @@ void* __init_flist(void* start_addr);
  * @param head the address of the address of the head of this size-class
  * @returns The address allocated (The head pointer is potentially updated as well)
  */
-void* flist_alloc_space ( int n_blocks, void* type, struct flist_node** head );
+void* flist_alloc_space ( size_t size, int n_blocks, void* type, struct flist_node** head );
 
 /**
  * Frees a block, adding the allocated block to the freelist
