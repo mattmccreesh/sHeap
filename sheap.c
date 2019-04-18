@@ -23,6 +23,7 @@ void __init_sheap(){
 
 // Allocates the memory and returns a pointer to it
 void* malloc(size_t size){
+    write_char('M');
     // Handle 0-case
     if(size == 0){
         return NULL;
@@ -38,17 +39,22 @@ void* malloc(size_t size){
     struct pht_entry* pht_e = pht_search(call_site);
     
     // Return the memory address from ST
-    return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+    void* ret = st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+    print_address_hex(ret);
+    return ret;
 }
 
 void* _malloc(void* call_site, size_t size) {
   struct pht_entry* pht_e = pht_search(call_site);
   // Return the memory address from ST
-  return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+  void* ret = st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+  print_address_hex(ret);
+  return ret;
 }
 
 // Does the same thing as malloc, but zeroes out the memory
 void* calloc(size_t nitems, size_t size){
+    write_char('C');
     // Make a standard malloc call
     char* l = (char*) malloc(nitems * size);
     // Zero out the memory
@@ -61,6 +67,7 @@ void* calloc(size_t nitems, size_t size){
 
 // Given a pointer to memory and a size, it will attempt to resize the memory chunk
 void* realloc(void* ptr, size_t size){
+  write_char('R');
   if ( NULL == ptr ) {
     return malloc ( size );
   } else if ( 0 == size ) {
@@ -97,10 +104,14 @@ void* realloc(void* ptr, size_t size){
 
 // Frees a memory allocation pointed to by ptr
 void free(void* ptr){
-    // Get the flist node  
-    struct flist_node* target_node = get_node_from_location(ptr);
-    // Get the 
-    struct pht_entry* pht_e = pht_search(target_node->type);
-    // Free the space
-    flist_dealloc_space(ptr, st_get_freeptr(pht_e->pool_ptr, target_node->size));
+    if(ptr){
+        write_char('F');
+        print_address_hex(ptr);
+        // Get the flist node  
+        struct flist_node* target_node = get_node_from_location(ptr);
+        // Get the 
+        struct pht_entry* pht_e = pht_search(target_node->type);
+        // Free the space
+        flist_dealloc_space(ptr, st_get_freeptr(pht_e->pool_ptr, target_node->size));
+    }
 }
