@@ -8,7 +8,11 @@
  *  @returns A pointer to the start of the allocated blocks
  */
 void* allocate_blocks ( int n_blocks ) {
-  return sbrk(BLOCK_SIZE * n_blocks );
+  void* ret = sbrk(BLOCK_SIZE * n_blocks );
+  print_address_hex(ret);
+  print_char('\t');
+  print_address_hex(n_blocks);
+  return ret;
 }
 
 void write_char(char c){
