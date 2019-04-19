@@ -24,14 +24,10 @@ void __init_sheap(){
 // Allocates the memory and returns a pointer to it
 void* malloc(size_t size){
     write_char('M');
-    write_char(' ');
-    print_address_hex(size);
-    write_char(' ');
     // Handle 0-case
     if(size == 0){
         return NULL;
     }
-
     // Check for sheap init
     if(!__SHEAP_BASE){
         __init_sheap();
@@ -51,7 +47,6 @@ void* _malloc(void* call_site, size_t size) {
   struct pht_entry* pht_e = pht_search(call_site);
   // Return the memory address from ST
   void* ret = st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
-  print_address_hex(ret);
   return ret;
 }
 
