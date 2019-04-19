@@ -17,7 +17,9 @@ void* __init_flist(void* start_addr){
 void* get_location_from_node ( struct flist_node* node ) {
   // Ensure the node is valid
   if ( !(long)node & 0x1111 ) {
-    write_char('l');
+    if ( PRINT ) {
+      write_char('l');
+    }
     exit ( 1 );
   }
   return ((void*)node - __SHEAP_FLIST_START)/sizeof(struct flist_node) * BLOCK_SIZE + __SHEAP_BLOCK_START;
@@ -31,7 +33,9 @@ struct flist_node* get_node_from_location ( void* loc ) {
   struct flist_node* node = (struct flist_node*) (__SHEAP_FLIST_START + ( offset * sizeof ( struct flist_node ) ));
   // Is the pointer aligned as a multiple of 32? It should be for a struct node.
   if ( (long)node & 0x1111 != 0 ) {
-    write_char('L');
+    if ( PRINT ) {
+      write_char('L');
+    }
     exit ( 1 );
   }
   return node;
