@@ -38,16 +38,13 @@ void* malloc(size_t size){
     struct pht_entry* pht_e = pht_search(call_site);
     
     // Return the memory address from ST
-    void* ret = st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
-    print_address_hex(ret);
-    return ret;
+    return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
 }
 
 void* _malloc(void* call_site, size_t size) {
   struct pht_entry* pht_e = pht_search(call_site);
   // Return the memory address from ST
-  void* ret = st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
-  return ret;
+  return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
 }
 
 // Does the same thing as malloc, but zeroes out the memory
@@ -104,7 +101,6 @@ void* realloc(void* ptr, size_t size){
 void free(void* ptr){
     if(ptr){
         write_char('F');
-        print_address_hex(ptr);
         // Get the flist node  
         struct flist_node* target_node = get_node_from_location(ptr);
         // Get the 

@@ -38,15 +38,11 @@ struct flist_node* get_node_from_location ( void* loc ) {
 }
 
 void* flist_alloc_space (size_t size, int n_blocks, void* type, struct flist_node** head ) {
-  write_char('T');
-  print_address_hex((void*)*head);
   struct flist_node* _head = *head;
   void* loc = NULL;
   if ( _head == NULL ) {
     loc = allocate_blocks( n_blocks );
     struct flist_node* node = (struct flist_node*) __SHEAP_FLIST_UNUSED;
-    write_char('X');
-    print_address_hex(node);
     node->next = NULL;
     node->prev = NULL;
     node->n_blocks = n_blocks;
@@ -56,8 +52,6 @@ void* flist_alloc_space (size_t size, int n_blocks, void* type, struct flist_nod
   } else {
     struct flist_node* nhead = _head->next;
     loc = get_location_from_node(_head);
-    write_char('X');
-    print_address_hex(nhead);
     _head->next = NULL;
     if ( nhead != NULL ) {
       nhead->prev = NULL;
@@ -70,8 +64,6 @@ void* flist_alloc_space (size_t size, int n_blocks, void* type, struct flist_nod
 void flist_dealloc_space ( void* loc, struct flist_node** head ) {
     struct flist_node* node = get_node_from_location ( loc );
     struct flist_node* _head = *head;
-    write_char('t');
-    print_address_hex((void*)_head);
     // Now we need to free the location
     if ( _head == NULL ) {
         *head = node;
