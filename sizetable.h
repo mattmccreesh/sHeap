@@ -5,7 +5,7 @@
 #include <stddef.h>
 
 #define NUM_LARGE_SIZE_CLASSES 50
-#define __SHEAP_ST_BLOCKS 2
+#define __SHEAP_ST_BLOCKS 4
 
 //50 size classes for exponential size class growth
 //supports max size_t size allocation request on 64 bit system

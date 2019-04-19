@@ -49,6 +49,10 @@ void* flist_alloc_space (size_t size, int n_blocks, void* type, struct flist_nod
     node->type = type;
     node->size = size;
     __SHEAP_FLIST_UNUSED += sizeof(struct flist_node) * n_blocks;
+    if(__SHEAP_FLIST_UNUSED > __SHEAP_BLOCK_START){
+      write_char('Q');
+      exit(123);
+    }
   } else {
     struct flist_node* nhead = _head->next;
     loc = get_location_from_node(_head);

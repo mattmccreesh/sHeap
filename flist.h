@@ -8,7 +8,7 @@ extern void* __SHEAP_FLIST_START;
 extern void* __SHEAP_BLOCK_START;
 extern void* __SHEAP_FLIST_UNUSED;
 
-#define __SHEAP_FLIST_BLOCKS 4
+#define __SHEAP_FLIST_BLOCKS 100
 
 struct flist_node {
   struct flist_node* next;
