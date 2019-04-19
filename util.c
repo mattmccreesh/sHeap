@@ -10,7 +10,7 @@
 void* allocate_blocks ( int n_blocks ) {
   void* ret = sbrk(BLOCK_SIZE * n_blocks );
   print_address_hex(ret);
-  print_char('\t');
+  write_char('\t');
   print_address_hex(n_blocks);
   return ret;
 }
