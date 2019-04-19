@@ -23,22 +23,24 @@ void __init_sheap(){
 
 // Allocates the memory and returns a pointer to it
 void* malloc(size_t size){
+  if ( PRINT ) {
     write_char('M');
-    // Handle 0-case
-    if(size == 0){
-        return NULL;
-    }
-    // Check for sheap init
-    if(!__SHEAP_BASE){
-        __init_sheap();
-    }
-    // Get the call site address to malloc
-    void* call_site = __builtin_return_address(0);
-    // Search for pool ptr
-    struct pht_entry* pht_e = pht_search(call_site);
-    
-    // Return the memory address from ST
-    return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+  }
+  // Handle 0-case
+  if(size == 0){
+    return NULL;
+  }
+  // Check for sheap init
+  if(!__SHEAP_BASE){
+    __init_sheap();
+  }
+  // Get the call site address to malloc
+  void* call_site = __builtin_return_address(0);
+  // Search for pool ptr
+  struct pht_entry* pht_e = pht_search(call_site);
+  
+  // Return the memory address from ST
+  return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
 }
 
 void* _malloc(void* call_site, size_t size) {
@@ -49,7 +51,9 @@ void* _malloc(void* call_site, size_t size) {
 
 // Does the same thing as malloc, but zeroes out the memory
 void* calloc(size_t nitems, size_t size){
+  if ( PRINT ) {
     write_char('C');
+  }
     // Make a standard malloc call
     char* l = (char*) malloc(nitems * size);
     // Zero out the memory
@@ -62,7 +66,9 @@ void* calloc(size_t nitems, size_t size){
 
 // Given a pointer to memory and a size, it will attempt to resize the memory chunk
 void* realloc(void* ptr, size_t size){
-  write_char('R');
+  if ( PRINT ) {
+    write_char('R');
+  }
   if ( NULL == ptr ) {
     return malloc ( size );
   } else if ( 0 == size ) {
@@ -100,7 +106,9 @@ void* realloc(void* ptr, size_t size){
 // Frees a memory allocation pointed to by ptr
 void free(void* ptr){
     if(ptr){
+      if ( PRINT ) {
         write_char('F');
+      }
         // Get the flist node  
         struct flist_node* target_node = get_node_from_location(ptr);
         // Get the 
@@ -109,3 +117,4 @@ void free(void* ptr){
         flist_dealloc_space(ptr, st_get_freeptr(pht_e->pool_ptr, target_node->size));
     }
 }
+
