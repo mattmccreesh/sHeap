@@ -1,6 +1,14 @@
 #include "util.h"
 #include <unistd.h>
 #include <stdint.h>
+#include <sys/mman.h>
+#include <string.h>
+
+void pstring(char* c) {
+  write(1,c,strlen(c));
+}
+
+void* start = NULL;
 
 /**
  *  Allocates a number of blocks and returns a pointer to the start of them
@@ -8,7 +16,14 @@
  *  @returns A pointer to the start of the allocated blocks
  */
 void* allocate_blocks ( int n_blocks ) {
-  return sbrk(BLOCK_SIZE * n_blocks );
+  void* ret = NULL;
+  if ( start == NULL ) {
+    ret = mmap(0, BLOCK_SIZE * n_blocks, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0 );
+  } else {
+    ret = mmap(start, BLOCK_SIZE * n_blocks, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON | MAP_FIXED, -1, 0);
+  }
+  start = ret + BLOCK_SIZE * n_blocks;
+  return ret;
 }
 
 void write_char(char c){
@@ -21,6 +36,7 @@ char hex_digit(int v) {
   else
     return 'a' + v - 10; // <-- Here
 }
+
 
 void print_address_hex(void* p0) {
   int i;

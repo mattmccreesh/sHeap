@@ -34,15 +34,11 @@ int* make_ptr(int num){
 }
 
 int main(){
-  void* p =  realloc ( NULL, 5 );
-  realloc ( p, 0 );
-  p = realloc ( NULL, 100 );
-  printf ( "%p\n", p );
-  p = realloc ( p, 16384+1 );
-  printf ( "%p\n", p );
-  p = realloc ( p, 16384*2+1 );
-  printf ( "%p\n", p );
-  p = realloc ( p, 16384*4+1 );
-  printf ( "%p\n", p );
-  //    c = realloc ( c, 10100001001);
+  char* p =  realloc ( NULL, 5 );
+  write_char('n');
+  p[16383] = 'c';
+  write_char('o');
+  //p[16384] = 'd';
+  write_char('p');
+  //  printf ( "%p\n", p );
 }
