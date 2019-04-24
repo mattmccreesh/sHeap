@@ -41,4 +41,5 @@ int main(){
   //p[16384] = 'd';
   write_char('p');
   //  printf ( "%p\n", p );
+  return 0;
 }
