@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//offst to result of call
+#define UNWIND_ASSEMBLER_OFFSET 18
+
 int count_valid = 0;
 int count_nptr = 0;
 void* last_ret = (void*) 100;
@@ -42,7 +45,7 @@ void* unwinder()
     last_ret = 0;//value returned by us
     ret_addr_overwritten = (void*) ip;
     void** ret_addr_to_overwrite = (void**) sp;
-    *ret_addr_to_overwrite = &detector + 18;
+    *ret_addr_to_overwrite = &detector + UNWIND_ASSEMBLER_OFFSET;
     return (void*) 0;
 }
 
