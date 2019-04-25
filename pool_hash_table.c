@@ -43,9 +43,9 @@ struct pht_entry* pht_search(void* call_site){
                 (PHT_BASE+offset)->call_site = call_site;
                 // This may not be needed, but idk if the memory will be zeroed out
                 (PHT_BASE+offset)->pool_ptr = NULL;
-                break;
+                return (struct pht_entry*) PHT_BASE+offset;
             }else if((PHT_BASE+offset)->call_site == call_site){
-                break;
+                return (struct pht_entry*) PHT_BASE + offset;
             }
         }
         // IF WE GET HERE THERE IS NO SPACE
