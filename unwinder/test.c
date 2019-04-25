@@ -3,9 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//offst to result of call
-#define UNWIND_ASSEMBLER_OFFSET 18
-
 int count_valid = 0;
 int count_nptr = 0;
 void* last_ret = (void*) 100;
@@ -24,7 +21,11 @@ void detector(){
     else{
         printf("NOT a wrapper\n");
     }
-    asm volatile("jmp *%0" : : "r"(ret_addr_overwritten));
+    //asm volatile("mov %0, %r15" : : "r"(ret_addr_overwritten));
+    //asm volatile("mov %0, %rax" : : "r"(v));
+    asm("mov %0, %%r15" : : "r"(ret_addr_overwritten));
+    asm("mov %0, %%rax" : : "r"(v));
+    asm("jmp *%r15");
 }
 
 void* unwinder()
@@ -45,7 +46,7 @@ void* unwinder()
     last_ret = 0;//value returned by us
     ret_addr_overwritten = (void*) ip;
     void** ret_addr_to_overwrite = (void**) sp;
-    *ret_addr_to_overwrite = &detector + UNWIND_ASSEMBLER_OFFSET;
+    *ret_addr_to_overwrite = &detector + 18;
     return (void*) 0;
 }
 
@@ -68,6 +69,8 @@ void* wrapper(){
 int main()
 {
     void* q = wrapper();
-    non_wrapper();
+    printf("FIRST RET %p\n", q);
+    int j = non_wrapper();
+    printf("SECOND RET %d\n", j);
     return 0;
 }
