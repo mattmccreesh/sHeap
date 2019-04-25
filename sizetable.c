@@ -20,7 +20,7 @@ void* __init_st(void* start_addr){
 }
 
 void* st_allocate_block(struct st_elem** pool_ptr, size_t alloc_size, void* call_site){
-    if(*pool_ptr == 0){
+    if(*pool_ptr == NULL){
         *pool_ptr = create_st_elem(alloc_size);
     }
     size_t size_class = get_sizeclass_index(alloc_size);
@@ -29,9 +29,9 @@ void* st_allocate_block(struct st_elem** pool_ptr, size_t alloc_size, void* call
 }
 
 
-//TODO: ensure I don't overflow into next part of heap data
-struct st_elem* create_st_elem(){
+struct st_elem* create_st_elem(size_t alloc_size){
     struct st_elem* ret = __SHEAP_ST_NEXT++;
+    ret->wrapper_or_alloc_size = alloc_size;
     if((void*)__SHEAP_ST_NEXT > __SHEAP_ST_END){
       if ( PRINT ) {
         write_char('s');

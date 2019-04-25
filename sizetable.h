@@ -10,6 +10,7 @@
 //50 size classes for exponential size class growth
 //supports max size_t size allocation request on 64 bit system
 struct st_elem {
+    size_t wrapper_or_alloc_size;//0 indicates wrapper
     struct flist_node* freeptr[NUM_LARGE_SIZE_CLASSES];
 };
 
@@ -21,7 +22,7 @@ extern struct st_elem* __SHEAP_ST_NEXT;
 //update global constants
 void* __init_st(void* start_block);
 //return pointer to struct
-struct st_elem* create_st_elem();
+struct st_elem* create_st_elem(size_t alloc_size);
 struct flist_node** st_get_freeptr(struct st_elem*, size_t alloc_size);
 void* st_allocate_block(struct st_elem** pool_ptr, size_t alloc_size, void* call_site);
 //todo
