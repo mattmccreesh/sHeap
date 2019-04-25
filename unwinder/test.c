@@ -23,9 +23,9 @@ void detector(){
     }
     //asm volatile("mov %0, %r15" : : "r"(ret_addr_overwritten));
     //asm volatile("mov %0, %rax" : : "r"(v));
-    asm("mov %0, %%r15" : : "r"(ret_addr_overwritten));
+    asm("mov %0, %%r11" : : "r"(ret_addr_overwritten));
     asm("mov %0, %%rax" : : "r"(v));
-    asm("jmp *%r15");
+    asm("jmp *%r11");
 }
 
 void* unwinder()
