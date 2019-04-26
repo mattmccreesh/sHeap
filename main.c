@@ -42,8 +42,12 @@ int non_wrapper(int size){
 
 int main(){
   int* a = make_ptr(2);
+  free(a);
   int* b = make_ptr(3);
+  int* c = make_ptr(4);
   int x = non_wrapper(2);
   int y = non_wrapper(5);
+  free(b);
+  //free(c);
 }
 
