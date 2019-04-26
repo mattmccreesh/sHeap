@@ -12,6 +12,26 @@ void* fake_call(){
     return (void*) 9;
 }
 
+void detectorAsm(){
+  asm("cmp %%rax, %0" : : "r"(last_ret));
+  //asm("jne $+0x2");
+  
+  /*
+   *0x0000000000000903 <+29>:	cmp    %rax,-0x8(%rbp)
+   0x0000000000000907 <+33>:	jne    0x917 <detector+49>
+   0x0000000000000909 <+35>:	lea    0x2a4(%rip),%rdi        # 0xbb4
+   0x0000000000000910 <+42>:	callq  0x740 <puts@plt>
+   0x0000000000000915 <+47>:	jmp    0x923 <detector+61>
+   0x0000000000000917 <+49>:	lea    0x2a7(%rip),%rdi        # 0xbc5
+   0x000000000000091e <+56>:	callq  0x740 <puts@plt>
+   0x0000000000000923 <+61>:	mov    0x2016fe(%rip),%rax        # 0x202028 <ret_addr_overwritten>
+   0x000000000000092a <+68>:	mov    %rax,%r11
+   0x000000000000092d <+71>:	mov    -0x8(%rbp),%rax
+   0x0000000000000931 <+75>:	mov    %rax,%rax
+   0x0000000000000934 <+78>:	jmpq   *%r11
+  */ 
+}
+
 //this should actually be an assembly routine
 void detector(){
     void* v = fake_call();
