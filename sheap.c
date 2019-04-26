@@ -39,7 +39,17 @@ void* malloc(size_t size){
   // Search for pool ptr
   struct pht_entry* pht_e = pht_search(call_site);
   
-  // Return the memory address from ST
+  //if it is a wrapper
+  if(pht_e->pool_ptr != NULL && pht_e->pool_ptr->wrapper_or_alloc_size == 0){
+    //unwidn to get real call site
+    //redo pht_search for that call site
+  } 
+  else if(pht_e->pool_ptr != NULL && pht_e->pool_ptr->wrapper_or_alloc_size != size){
+    //do stack unwinding
+    //overwrite return address to assembler for detection
+    //save globals
+    //DON'T REDO SEARCH, but call st_allocate_block, save that to global, return it
+  }
   return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
 }
 
