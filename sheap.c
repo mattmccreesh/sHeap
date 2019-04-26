@@ -40,6 +40,31 @@ void detector(){
     asm("jmp *%r11");
 }
 
+
+//overwrite with this addr + 4 (4 to avoid prologue of function)
+//will interept return of susupected wrapper, determine if it really is a wrapper
+//must get state back to caller of wrapper as if returned directly to it
+void wrapperDetector(){
+  //archive value returned but intercepted
+  asm("mov %rax, %r11");
+  asm("push %r11");//push as register may change in function call
+  asm("mov %0, %%rax" : : "r"(last_ret));
+  asm("cmp %rax, %r11");
+  asm goto("jne %l0\n" : : : : notEqual);
+  write_char('W');
+  write_char('\n');
+  asm goto("jmp %l0\n" : : : : jmpBack);
+notEqual:
+  write_char('N');
+  write_char('W');
+  write_char('\n');
+jmpBack:
+  asm("mov %0, %%r11" : : "r"(ret_addr_overwritten));
+  asm("pop %rax");//restore stack, get rax back to propogate return value properly
+  asm("jmp *%r11");
+}
+
+
 void* unwinder()
 {
     unw_cursor_t cursor;
@@ -124,7 +149,7 @@ void* malloc(size_t size){
     ret_addr_overwritten = (void*) ip;
     void** ret_addr_to_overwrite = (void**) sp;
     //overwrite return address to assembler for detection
-    *ret_addr_to_overwrite = &detector + 18;
+    *ret_addr_to_overwrite = &wrapperDetector + 4;//+4 to skip prologue of function
     //save address as global to compare to in wrapper detection routine 
     last_ret = st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
     return last_ret;

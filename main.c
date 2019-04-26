@@ -48,6 +48,6 @@ int main(){
   int x = non_wrapper(2);
   int y = non_wrapper(5);
   free(b);
-  //free(c);
+  free(c);
 }
 
