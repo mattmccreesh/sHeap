@@ -13,23 +13,20 @@ void* fake_call(){
 }
 
 void detectorAsm(){
-  asm("cmp %%rax, %0" : : "r"(last_ret));
-  //asm("jne $+0x2");
-  
-  /*
-   *0x0000000000000903 <+29>:	cmp    %rax,-0x8(%rbp)
-   0x0000000000000907 <+33>:	jne    0x917 <detector+49>
-   0x0000000000000909 <+35>:	lea    0x2a4(%rip),%rdi        # 0xbb4
-   0x0000000000000910 <+42>:	callq  0x740 <puts@plt>
-   0x0000000000000915 <+47>:	jmp    0x923 <detector+61>
-   0x0000000000000917 <+49>:	lea    0x2a7(%rip),%rdi        # 0xbc5
-   0x000000000000091e <+56>:	callq  0x740 <puts@plt>
-   0x0000000000000923 <+61>:	mov    0x2016fe(%rip),%rax        # 0x202028 <ret_addr_overwritten>
-   0x000000000000092a <+68>:	mov    %rax,%r11
-   0x000000000000092d <+71>:	mov    -0x8(%rbp),%rax
-   0x0000000000000931 <+75>:	mov    %rax,%rax
-   0x0000000000000934 <+78>:	jmpq   *%r11
-  */ 
+  //archive value returned but intercepted
+  asm("mov %rax, %r11");
+  asm("push %r11");//push as register may change in function call
+  asm("mov %0, %%rax" : : "r"(last_ret));
+  asm("cmp %rax, %r11");
+  asm goto("jne %l0\n" : : : : notEqual);
+  printf("Wrapper detected\n");
+  asm goto("jmp %l0\n" : : : : jmpBack);
+notEqual:
+  printf("Not a wrapper\n");
+jmpBack:
+  asm("mov %0, %%r11" : : "r"(ret_addr_overwritten));
+  asm("pop %rax");//restore stack, get rax back to propogate return value properly
+  asm("jmp *%r11");
 }
 
 //this should actually be an assembly routine
@@ -66,7 +63,7 @@ void* unwinder()
     last_ret = 0;//value returned by us
     ret_addr_overwritten = (void*) ip;
     void** ret_addr_to_overwrite = (void**) sp;
-    *ret_addr_to_overwrite = &detector + 18;
+    *ret_addr_to_overwrite = &detectorAsm + 4;
     return (void*) 0;
 }
 
