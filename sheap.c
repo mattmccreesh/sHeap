@@ -13,7 +13,11 @@ void* __SHEAP_BASE = NULL;
 
 void* last_ret = (void*) 100;
 void* ret_addr_overwritten;
+struct st_elem* wrapper_entry;//set wrapper_entry->wrapper_or_alloc_size to 0 if wrapper
 
+void markAsWrapper(){
+  wrapper_entry->wrapper_or_alloc_size = 0;
+}
 
 //overwrite with this addr + 4 (4 to avoid prologue of function)
 //will interept return of susupected wrapper, determine if it really is a wrapper
@@ -23,12 +27,15 @@ void wrapperDetector(){
   asm("mov %rax, %r11");
   asm("push %r11");//push as register may change in function call
   asm("mov %0, %%rax" : : "r"(last_ret));
+  //if return value (rax) of suspected warpper is same as last malloc ret, return
   asm("cmp %rax, %r11");
-  asm goto("jne %l0\n" : : : : notEqual);
+  asm goto("jne %l0\n" : : : : notWrapper);
+  //if here it is a wrapper
   write_char('W');
   write_char('\n');
+  markAsWrapper();
   asm goto("jmp %l0\n" : : : : jmpBack);
-notEqual:
+notWrapper:
   write_char('N');
   write_char('W');
   write_char('\n');
@@ -71,7 +78,7 @@ void* malloc(size_t size){
   
   //if it is a wrapper
   if(pht_e->pool_ptr != NULL && pht_e->pool_ptr->wrapper_or_alloc_size == 0){
-    //unwidn to get real call site
+    //unwind to get real call site
     unw_cursor_t cursor;
     unw_context_t uc;
     unw_word_t ip;
@@ -103,6 +110,7 @@ void* malloc(size_t size){
     *ret_addr_to_overwrite = &wrapperDetector + 4;//+4 to skip prologue of function
     //save address as global to compare to in wrapper detection routine 
     last_ret = st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+    wrapper_entry = pht_e->pool_ptr;
     return last_ret;
   }
   return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
