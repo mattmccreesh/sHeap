@@ -88,6 +88,8 @@ void* malloc(size_t size){
   //if it is a wrapper
   if(pht_e->pool_ptr != NULL && pht_e->pool_ptr->wrapper_or_alloc_size == 0){
     //unwind to get real call site
+    /*write_char('W');
+    write_char('\n');*/
     unw_cursor_t cursor;
     unw_context_t uc;
     unw_word_t ip;
@@ -101,7 +103,11 @@ void* malloc(size_t size){
     pht_e = pht_search(call_site);
   } 
   else if(pht_e->pool_ptr != NULL && pht_e->pool_ptr->wrapper_or_alloc_size != size && pht_e->pool_ptr->wrapper_or_alloc_size != (size_t)-1){
-    //do stack unwinding       
+    //do stack unwinding
+    /* 
+    write_char('S');
+    write_char('W');
+    write_char('\n');*/    
     unw_cursor_t cursor;
     unw_context_t uc;
     unw_word_t ip;
