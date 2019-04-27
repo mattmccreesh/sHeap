@@ -119,14 +119,17 @@ void* malloc(size_t size){
     unw_get_reg(&cursor, UNW_REG_IP, &ip);
     unw_get_reg(&cursor, UNW_REG_SP, &sp);
     sp -= 8;//minus 8 bytes for return address
-    ret_addr_overwritten = (void*) ip;
+    void* ret_addr_on_stack = (void*)ip;
     void** ret_addr_to_overwrite = (void**) sp;
     //overwrite return address to assembler for detection
-    *ret_addr_to_overwrite = &wrapperDetector + 4;//+4 to skip prologue of function
-    //save address as global to compare to in wrapper detection routine 
-    last_ret = st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
-    wrapper_entry = pht_e->pool_ptr;
-    return last_ret;
+    if(ret_addr_on_stack != &wrapperDetector +4){//abort detection if multiple malloc calls in suspected wrapper
+      ret_addr_overwritten = ret_addr_on_stack;
+      *ret_addr_to_overwrite = &wrapperDetector + 4;//+4 to skip prologue of function
+      //save address as global to compare to in wrapper detection routine 
+      last_ret = st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+      wrapper_entry = pht_e->pool_ptr;
+      return last_ret;
+    }//in else case we could abort detection of previous guy too but not necessary
   }
   return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
 }
