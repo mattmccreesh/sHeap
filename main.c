@@ -50,10 +50,12 @@ int main(){
   printf("%p\n", c);
   int x = non_wrapper(2);
   int y = non_wrapper(5);
+  int z = non_wrapper(6);
   printf("%p\n", c);
   printf("%d\n", x);
   printf("%d\n", y);
   free(b);
   free(c);
+  printf("%d\n", z);
 }
 

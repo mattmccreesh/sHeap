@@ -19,6 +19,11 @@ void markAsWrapper(){
   wrapper_entry->wrapper_or_alloc_size = 0;
 }
 
+
+void markAsNonWrapper(){
+  wrapper_entry->wrapper_or_alloc_size = (size_t)-1;
+}
+
 //overwrite with this addr + 4 (4 to avoid prologue of function)
 //will interept return of susupected wrapper, determine if it really is a wrapper
 //must get state back to caller of wrapper as if returned directly to it
@@ -30,19 +35,19 @@ void wrapperDetector(){
   //if return value (rax) of suspected warpper is same as last malloc ret, return
   asm("cmp %rax, %r11");
   asm goto("jne %l0\n" : : : : notWrapper);
-  //if here it is a wrapperi
+  //if here it is a wrapper
   /*
   write_char('W');
-  write_char('\n');
-  markAsWrapper();*/
+  write_char('\n');*/
+  markAsWrapper();
   asm goto("jmp %l0\n" : : : : jmpBack);
 notWrapper:
-  //mark as non-wrapper if we want to do that
+  //mark as non-wrapper
   /*
   write_char('N');
   write_char('W');
-  write_char('\n');
-  */
+  write_char('\n');*/
+  markAsNonWrapper();
 jmpBack:
   asm("mov %0, %%r11" : : "r"(ret_addr_overwritten));
   asm("pop %rax");//restore stack, get rax back to propogate return value properly
@@ -95,7 +100,7 @@ void* malloc(size_t size){
     //redo pht_search for the real call site
     pht_e = pht_search(call_site);
   } 
-  else if(pht_e->pool_ptr != NULL && pht_e->pool_ptr->wrapper_or_alloc_size != size){
+  else if(pht_e->pool_ptr != NULL && pht_e->pool_ptr->wrapper_or_alloc_size != size && pht_e->pool_ptr->wrapper_or_alloc_size != (size_t)-1){
     //do stack unwinding       
     unw_cursor_t cursor;
     unw_context_t uc;
