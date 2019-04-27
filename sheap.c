@@ -30,15 +30,19 @@ void wrapperDetector(){
   //if return value (rax) of suspected warpper is same as last malloc ret, return
   asm("cmp %rax, %r11");
   asm goto("jne %l0\n" : : : : notWrapper);
-  //if here it is a wrapper
+  //if here it is a wrapperi
+  /*
   write_char('W');
   write_char('\n');
-  markAsWrapper();
+  markAsWrapper();*/
   asm goto("jmp %l0\n" : : : : jmpBack);
 notWrapper:
+  //mark as non-wrapper if we want to do that
+  /*
   write_char('N');
   write_char('W');
   write_char('\n');
+  */
 jmpBack:
   asm("mov %0, %%r11" : : "r"(ret_addr_overwritten));
   asm("pop %rax");//restore stack, get rax back to propogate return value properly

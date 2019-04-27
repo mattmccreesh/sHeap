@@ -42,11 +42,17 @@ int non_wrapper(int size){
 
 int main(){
   int* a = make_ptr(2);
+  printf("%p\n", a);
   free(a);
   int* b = make_ptr(3);
+  printf("%p\n", b);
   int* c = make_ptr(4);
+  printf("%p\n", c);
   int x = non_wrapper(2);
   int y = non_wrapper(5);
+  printf("%p\n", c);
+  printf("%d\n", x);
+  printf("%d\n", y);
   free(b);
   free(c);
 }
