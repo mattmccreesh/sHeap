@@ -12,16 +12,19 @@
 void* __SHEAP_BASE = NULL;
 
 void* last_ret = (void*) 100;
-void* ret_addr_overwritten;
+void* ret_addr_overwritten = NULL;
+void** overwritten_stack_location = NULL;
 struct st_elem* wrapper_entry;//set wrapper_entry->wrapper_or_alloc_size to 0 if wrapper
 
 void markAsWrapper(){
   wrapper_entry->wrapper_or_alloc_size = 0;
+  overwritten_stack_location = NULL;
 }
 
 
 void markAsNonWrapper(){
   wrapper_entry->wrapper_or_alloc_size = (size_t)-1;
+  overwritten_stack_location = NULL;
 }
 
 //overwrite with this addr + 4 (4 to avoid prologue of function)
@@ -107,7 +110,13 @@ void* malloc(size_t size){
     /* 
     write_char('S');
     write_char('W');
-    write_char('\n');*/    
+    write_char('\n');*/
+    //first step is to see if it is nested suspected wrapper
+    //if we are already probing caller, we should stop probing outer [it is highly unikely to be a malloc wrapper] but still probe inner
+    if(overwritten_stack_location != NULL){
+      *overwritten_stack_location = ret_addr_overwritten;//abort probing for outer 
+    }
+
     unw_cursor_t cursor;
     unw_context_t uc;
     unw_word_t ip;
@@ -121,8 +130,11 @@ void* malloc(size_t size){
     sp -= 8;//minus 8 bytes for return address
     void* ret_addr_on_stack = (void*)ip;
     void** ret_addr_to_overwrite = (void**) sp;
+    overwritten_stack_location = ret_addr_to_overwrite;
     //overwrite return address to assembler for detection
-    if(ret_addr_on_stack != &wrapperDetector +4){//abort detection if multiple malloc calls in suspected wrapper
+    //to prevent infinite loop of detector, probably unnecessary now that we check if for nested suspected wrappers
+    //nested suspected wrappper check should handle 2 mallocs in suspected wrapper to prevent infinite loop there
+    if(ret_addr_on_stack != &wrapperDetector +4){
       ret_addr_overwritten = ret_addr_on_stack;
       *ret_addr_to_overwrite = &wrapperDetector + 4;//+4 to skip prologue of function
       //save address as global to compare to in wrapper detection routine 
