@@ -8,7 +8,7 @@
 // Represents the number of entries in the HT
 #define PHT_SIZE 1800
 // Represents the number of alloc blocks for the HT
-#define __SHEAP_PHT_BLOCKS 6
+#define __SHEAP_PHT_BLOCKS 25
 
 // Points to the frist phtEntry in the HT
 struct pht_entry* PHT_BASE;

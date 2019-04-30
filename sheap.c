@@ -1,3 +1,4 @@
+#define UNW_LOCAL_ONLY
 #include <stdlib.h>
 #include <stdio.h>
 #include "sheap.h"
@@ -5,9 +6,57 @@
 #include "pool_hash_table.h"
 #include "sizetable.h"
 #include "flist.h"
+#include <libunwind.h>
 
 // Load & define global ptr
 void* __SHEAP_BASE = NULL;
+
+void* last_ret = (void*) 100;
+void* ret_addr_overwritten = NULL;
+void** overwritten_stack_location = NULL;
+struct st_elem* wrapper_entry;//set wrapper_entry->wrapper_or_alloc_size to 0 if wrapper
+
+void markAsWrapper(){
+  wrapper_entry->wrapper_or_alloc_size = 0;
+  overwritten_stack_location = NULL;
+}
+
+
+void markAsNonWrapper(){
+  wrapper_entry->wrapper_or_alloc_size = (size_t)-1;
+  overwritten_stack_location = NULL;
+}
+
+//overwrite with this addr + 4 (4 to avoid prologue of function)
+//will interept return of susupected wrapper, determine if it really is a wrapper
+//must get state back to caller of wrapper as if returned directly to it
+void wrapperDetector(){
+  //archive value returned but intercepted
+  asm("mov %rax, %r11");
+  asm("push %r11");//push as register may change in function call
+  asm("mov %0, %%rax" : : "r"(last_ret));
+  //if return value (rax) of suspected warpper is same as last malloc ret, return
+  asm("cmp %rax, %r11");
+  asm goto("jne %l0\n" : : : : notWrapper);
+  //if here it is a wrapper
+  /*
+  write_char('W');
+  write_char('\n');*/
+  markAsWrapper();
+  asm goto("jmp %l0\n" : : : : jmpBack);
+notWrapper:
+  //mark as non-wrapper
+  /*
+  write_char('N');
+  write_char('W');
+  write_char('\n');*/
+  markAsNonWrapper();
+jmpBack:
+  asm("mov %0, %%r11" : : "r"(ret_addr_overwritten));
+  asm("pop %rax");//restore stack, get rax back to propogate return value properly
+  asm("jmp *%r11");
+}
+
 
 // Kick-off the initialization process of the metaheap construction
 void __init_sheap(){
@@ -39,7 +88,61 @@ void* malloc(size_t size){
   // Search for pool ptr
   struct pht_entry* pht_e = pht_search(call_site);
   
-  // Return the memory address from ST
+  //if it is a wrapper
+  if(pht_e->pool_ptr != NULL && pht_e->pool_ptr->wrapper_or_alloc_size == 0){
+    //unwind to get real call site
+    /*write_char('W');
+    write_char('\n');*/
+    unw_cursor_t cursor;
+    unw_context_t uc;
+    unw_word_t ip;
+    unw_getcontext(&uc);
+    unw_init_local(&cursor, &uc);
+    unw_step(&cursor);
+    unw_step(&cursor);
+    unw_get_reg(&cursor, UNW_REG_IP, &ip);
+    call_site = (void*) ip; 
+    //redo pht_search for the real call site
+    pht_e = pht_search(call_site);
+  } 
+  else if(pht_e->pool_ptr != NULL && pht_e->pool_ptr->wrapper_or_alloc_size != size && pht_e->pool_ptr->wrapper_or_alloc_size != (size_t)-1){
+    //do stack unwinding
+    /* 
+    write_char('S');
+    write_char('W');
+    write_char('\n');*/
+    //first step is to see if it is nested suspected wrapper
+    //if we are already probing caller, we should stop probing outer [it is highly unikely to be a malloc wrapper] but still probe inner
+    if(overwritten_stack_location != NULL){
+      *overwritten_stack_location = ret_addr_overwritten;//abort probing for outer 
+    }
+
+    unw_cursor_t cursor;
+    unw_context_t uc;
+    unw_word_t ip;
+    unw_word_t sp;
+    unw_getcontext(&uc);
+    unw_init_local(&cursor, &uc);
+    unw_step(&cursor);
+    unw_step(&cursor);
+    unw_get_reg(&cursor, UNW_REG_IP, &ip);
+    unw_get_reg(&cursor, UNW_REG_SP, &sp);
+    sp -= 8;//minus 8 bytes for return address
+    void* ret_addr_on_stack = (void*)ip;
+    void** ret_addr_to_overwrite = (void**) sp;
+    overwritten_stack_location = ret_addr_to_overwrite;
+    //overwrite return address to assembler for detection
+    //to prevent infinite loop of detector, probably unnecessary now that we check if for nested suspected wrappers
+    //nested suspected wrappper check should handle 2 mallocs in suspected wrapper to prevent infinite loop there
+    if(ret_addr_on_stack != &wrapperDetector +4){
+      ret_addr_overwritten = ret_addr_on_stack;
+      *ret_addr_to_overwrite = &wrapperDetector + 4;//+4 to skip prologue of function
+      //save address as global to compare to in wrapper detection routine 
+      last_ret = st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+      wrapper_entry = pht_e->pool_ptr;
+      return last_ret;
+    }//in else case we could abort detection of previous guy too but not necessary
+  }
   return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
 }
 

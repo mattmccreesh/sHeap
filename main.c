@@ -27,22 +27,35 @@ void print_address_hex(void* p0) {
   write_char('\n');
 }
 
+//wrapper
 int* make_ptr(int num){
-  int* n = (int*) malloc(sizeof(int));
+  int* n = (int*) malloc(sizeof(int)*num);
   *n = num;
   return n;
 }
 
-int main(){
-  void* p =  realloc ( NULL, 5 );
-  realloc ( p, 0 );
-  p = realloc ( NULL, 100 );
-  printf ( "%p\n", p );
-  p = realloc ( p, 16384+1 );
-  printf ( "%p\n", p );
-  p = realloc ( p, 16384*2+1 );
-  printf ( "%p\n", p );
-  p = realloc ( p, 16384*4+1 );
-  printf ( "%p\n", p );
-  //    c = realloc ( c, 10100001001);
+//not a malloc warpper
+int non_wrapper(int size){
+  void * v = malloc(size);
+  return 5;
 }
+
+int main(){
+  int* a = make_ptr(2);
+  printf("%p\n", a);
+  free(a);
+  int* b = make_ptr(3);
+  printf("%p\n", b);
+  int* c = make_ptr(4);
+  printf("%p\n", c);
+  int x = non_wrapper(2);
+  int y = non_wrapper(5);
+  int z = non_wrapper(6);
+  printf("%p\n", c);
+  printf("%d\n", x);
+  printf("%d\n", y);
+  free(b);
+  free(c);
+  printf("%d\n", z);
+}
+

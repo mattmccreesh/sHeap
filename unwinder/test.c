@@ -12,6 +12,23 @@ void* fake_call(){
     return (void*) 9;
 }
 
+void detectorAsm(){
+  //archive value returned but intercepted
+  asm("mov %rax, %r11");
+  asm("push %r11");//push as register may change in function call
+  asm("mov %0, %%rax" : : "r"(last_ret));
+  asm("cmp %rax, %r11");
+  asm goto("jne %l0\n" : : : : notEqual);
+  printf("Wrapper detected\n");
+  asm goto("jmp %l0\n" : : : : jmpBack);
+notEqual:
+  printf("Not a wrapper\n");
+jmpBack:
+  asm("mov %0, %%r11" : : "r"(ret_addr_overwritten));
+  asm("pop %rax");//restore stack, get rax back to propogate return value properly
+  asm("jmp *%r11");
+}
+
 //this should actually be an assembly routine
 void detector(){
     void* v = fake_call();
@@ -46,7 +63,7 @@ void* unwinder()
     last_ret = 0;//value returned by us
     ret_addr_overwritten = (void*) ip;
     void** ret_addr_to_overwrite = (void**) sp;
-    *ret_addr_to_overwrite = &detector + 18;
+    *ret_addr_to_overwrite = &detectorAsm + 4;
     return (void*) 0;
 }
 

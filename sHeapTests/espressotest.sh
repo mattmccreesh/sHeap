@@ -1,1 +1,1 @@
-LD_PRELOAD=$PWD/sheap.so ./espresso jbp
+LD_PRELOAD=../sheap.so ./espresso jbp
