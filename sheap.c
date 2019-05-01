@@ -7,24 +7,27 @@
 #include "sizetable.h"
 #include "flist.h"
 #include <libunwind.h>
+#include <pthread.h>
+
+pthread_mutex_t alloc_mutex;//to protect alignment of metadata to data
 
 // Load & define global ptr
 void* __SHEAP_BASE = NULL;
 
-void* last_ret = (void*) 100;
-void* ret_addr_overwritten = NULL;
-void** overwritten_stack_location = NULL;
-struct st_elem* wrapper_entry;//set wrapper_entry->wrapper_or_alloc_size to 0 if wrapper
+pthread_key_t key_last_ret;
+pthread_key_t key_ret_addr_overwritten;
+pthread_key_t key_overwritten_stack_location;
+pthread_key_t key_wrapper_entry;
 
 void markAsWrapper(){
-  wrapper_entry->wrapper_or_alloc_size = 0;
-  overwritten_stack_location = NULL;
+  ((struct st_elem*) pthread_getspecific(key_wrapper_entry))->wrapper_or_alloc_size = 0;
+  pthread_setspecific(key_overwritten_stack_location, NULL);
 }
 
 
 void markAsNonWrapper(){
-  wrapper_entry->wrapper_or_alloc_size = (size_t)-1;
-  overwritten_stack_location = NULL;
+  ((struct st_elem*) pthread_getspecific(key_wrapper_entry))->wrapper_or_alloc_size = (size_t)-1;
+  pthread_setspecific(key_overwritten_stack_location, NULL);
 }
 
 //overwrite with this addr + 4 (4 to avoid prologue of function)
@@ -34,7 +37,8 @@ void wrapperDetector(){
   //archive value returned but intercepted
   asm("mov %rax, %r11");
   asm("push %r11");//push as register may change in function call
-  asm("mov %0, %%rax" : : "r"(last_ret));
+  //asm("mov %0, %%rax" : : "r"(last_ret));
+  pthread_getspecific(key_last_ret);//get this in rax
   //if return value (rax) of suspected warpper is same as last malloc ret, return
   asm("cmp %rax, %r11");
   asm goto("jne %l0\n" : : : : notWrapper);
@@ -52,7 +56,8 @@ notWrapper:
   write_char('\n');*/
   markAsNonWrapper();
 jmpBack:
-  asm("mov %0, %%r11" : : "r"(ret_addr_overwritten));
+  pthread_getspecific(key_ret_addr_overwritten);//put this in rax
+  asm("mov %rax, %r11");
   asm("pop %rax");//restore stack, get rax back to propogate return value properly
   asm("jmp *%r11");
 }
@@ -68,6 +73,10 @@ void __init_sheap(){
     void* pht_end = __init_pht(__SHEAP_BASE);
     void* st_end = __init_st(pht_end);
     void* flist_end = __init_flist(st_end);
+    pthread_key_create(&key_ret_addr_overwritten, NULL);   
+    pthread_key_create(&key_overwritten_stack_location, NULL);   
+    pthread_key_create(&key_wrapper_entry, NULL);   
+    pthread_key_create(&key_last_ret, NULL);   
 }
 
 // Allocates the memory and returns a pointer to it
@@ -79,6 +88,9 @@ void* malloc(size_t size){
   if(size == 0){
     return NULL;
   }
+  
+  pthread_mutex_lock(&alloc_mutex);
+  
   // Check for sheap init
   if(!__SHEAP_BASE){
     __init_sheap();
@@ -113,8 +125,8 @@ void* malloc(size_t size){
     write_char('\n');*/
     //first step is to see if it is nested suspected wrapper
     //if we are already probing caller, we should stop probing outer [it is highly unikely to be a malloc wrapper] but still probe inner
-    if(overwritten_stack_location != NULL){
-      *overwritten_stack_location = ret_addr_overwritten;//abort probing for outer 
+    if(pthread_getspecific(key_overwritten_stack_location) != NULL){
+      *((void**)pthread_getspecific(key_overwritten_stack_location)) = pthread_getspecific(key_ret_addr_overwritten);//abort probing for outer 
     }
 
     unw_cursor_t cursor;
@@ -130,26 +142,33 @@ void* malloc(size_t size){
     sp -= 8;//minus 8 bytes for return address
     void* ret_addr_on_stack = (void*)ip;
     void** ret_addr_to_overwrite = (void**) sp;
-    overwritten_stack_location = ret_addr_to_overwrite;
+    //must ensre ALL wrapper detection globals correspond to the current suspected wrapper
+    pthread_setspecific(key_overwritten_stack_location, ret_addr_to_overwrite);
     //overwrite return address to assembler for detection
     //to prevent infinite loop of detector, probably unnecessary now that we check if for nested suspected wrappers
     //nested suspected wrappper check should handle 2 mallocs in suspected wrapper to prevent infinite loop there
     if(ret_addr_on_stack != &wrapperDetector +4){
-      ret_addr_overwritten = ret_addr_on_stack;
+      pthread_setspecific(key_ret_addr_overwritten, ret_addr_on_stack);
       *ret_addr_to_overwrite = &wrapperDetector + 4;//+4 to skip prologue of function
       //save address as global to compare to in wrapper detection routine 
-      last_ret = st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
-      wrapper_entry = pht_e->pool_ptr;
-      return last_ret;
+      pthread_setspecific(key_last_ret, st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site));
+      pthread_setspecific(key_wrapper_entry, pht_e->pool_ptr);
+      pthread_mutex_unlock(&alloc_mutex);
+      return pthread_getspecific(key_last_ret);
     }//in else case we could abort detection of previous guy too but not necessary
   }
-  return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+  void* ret = st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+  pthread_mutex_unlock(&alloc_mutex);
+  return ret;
 }
 
 void* _malloc(void* call_site, size_t size) {
+  pthread_mutex_lock(&alloc_mutex);
   struct pht_entry* pht_e = pht_search(call_site);
   // Return the memory address from ST
-  return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+  void* ret = st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+  pthread_mutex_unlock(&alloc_mutex);
+  return ret;
 }
 
 // Does the same thing as malloc, but zeroes out the memory
@@ -212,12 +231,14 @@ void free(void* ptr){
       if ( PRINT ) {
         write_char('F');
       }
+      pthread_mutex_lock(&alloc_mutex);
         // Get the flist node  
         struct flist_node* target_node = get_node_from_location(ptr);
         // Get the 
         struct pht_entry* pht_e = pht_search(target_node->type);
         // Free the space
         flist_dealloc_space(ptr, st_get_freeptr(pht_e->pool_ptr, target_node->size));
+	pthread_mutex_unlock(&alloc_mutex);
     }
 }
 

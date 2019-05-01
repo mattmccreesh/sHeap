@@ -11,7 +11,7 @@ all: $(LIB)
 
 $(LIB): sizetable.c sheap.c pool_hash_table.c main.c util.c flist.c
 	$(CC) $(MAIN) -o $(EXE)
-	$(CC) -shared -fPIC sheap.c $(OBJ) -o $(LIB) -lunwind
+	$(CC) -shared -fPIC sheap.c $(OBJ) -o $(LIB) -lunwind -lpthread
 
 clean:
 	$(RM) $(EXE)
