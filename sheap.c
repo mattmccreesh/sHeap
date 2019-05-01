@@ -157,14 +157,18 @@ void* malloc(size_t size){
       return pthread_getspecific(key_last_ret);
     }//in else case we could abort detection of previous guy too but not necessary
   }
+  void* ret = st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
   pthread_mutex_unlock(&alloc_mutex);
-  return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+  return ret;
 }
 
 void* _malloc(void* call_site, size_t size) {
+  pthread_mutex_lock(&alloc_mutex);
   struct pht_entry* pht_e = pht_search(call_site);
   // Return the memory address from ST
-  return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+  void* ret = st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
+  pthread_mutex_unlock(&alloc_mutex);
+  return ret;
 }
 
 // Does the same thing as malloc, but zeroes out the memory
@@ -227,12 +231,14 @@ void free(void* ptr){
       if ( PRINT ) {
         write_char('F');
       }
+      pthread_mutex_lock(&alloc_mutex);
         // Get the flist node  
         struct flist_node* target_node = get_node_from_location(ptr);
         // Get the 
         struct pht_entry* pht_e = pht_search(target_node->type);
         // Free the space
         flist_dealloc_space(ptr, st_get_freeptr(pht_e->pool_ptr, target_node->size));
+	pthread_mutex_unlock(&alloc_mutex);
     }
 }
 
