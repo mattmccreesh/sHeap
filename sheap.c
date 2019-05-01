@@ -9,7 +9,8 @@
 #include <libunwind.h>
 #include <pthread.h>
 
-pthread_mutex_t alloc_mutex;
+pthread_mutex_t alloc_mutex;//to protect alignment of metadata to data
+pthread_mutex_t wrapper_detection_mutex;//protect globals used in wrapper detection
 
 // Load & define global ptr
 void* __SHEAP_BASE = NULL;
@@ -22,12 +23,14 @@ struct st_elem* wrapper_entry;//set wrapper_entry->wrapper_or_alloc_size to 0 if
 void markAsWrapper(){
   wrapper_entry->wrapper_or_alloc_size = 0;
   overwritten_stack_location = NULL;
+  pthread_mutex_unlock(&wrapper_detection_mutex);
 }
 
 
 void markAsNonWrapper(){
   wrapper_entry->wrapper_or_alloc_size = (size_t)-1;
-  overwritten_stack_location = NULL;
+  overwritten_stack_location = NULL;  
+  pthread_mutex_unlock(&wrapper_detection_mutex);
 }
 
 //overwrite with this addr + 4 (4 to avoid prologue of function)
@@ -121,6 +124,7 @@ void* malloc(size_t size){
     //if we are already probing caller, we should stop probing outer [it is highly unikely to be a malloc wrapper] but still probe inner
     if(overwritten_stack_location != NULL){
       *overwritten_stack_location = ret_addr_overwritten;//abort probing for outer 
+      pthread_mutex_unlock(&wrapper_detection_mutex);
     }
 
     unw_cursor_t cursor;
@@ -136,6 +140,8 @@ void* malloc(size_t size){
     sp -= 8;//minus 8 bytes for return address
     void* ret_addr_on_stack = (void*)ip;
     void** ret_addr_to_overwrite = (void**) sp;
+    //must ensre ALL wrapper detection globals correspond to the current suspected wrapper
+    pthread_mutex_lock(&wrapper_detection_mutex);
     overwritten_stack_location = ret_addr_to_overwrite;
     //overwrite return address to assembler for detection
     //to prevent infinite loop of detector, probably unnecessary now that we check if for nested suspected wrappers
