@@ -7,6 +7,9 @@
 #include "sizetable.h"
 #include "flist.h"
 #include <libunwind.h>
+#include <pthread.h>
+
+pthread_mutex_t alloc_mutex;
 
 // Load & define global ptr
 void* __SHEAP_BASE = NULL;
@@ -79,6 +82,9 @@ void* malloc(size_t size){
   if(size == 0){
     return NULL;
   }
+  
+  pthread_mutex_lock(&alloc_mutex);
+  
   // Check for sheap init
   if(!__SHEAP_BASE){
     __init_sheap();
@@ -140,9 +146,11 @@ void* malloc(size_t size){
       //save address as global to compare to in wrapper detection routine 
       last_ret = st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
       wrapper_entry = pht_e->pool_ptr;
+      pthread_mutex_unlock(&alloc_mutex);
       return last_ret;
     }//in else case we could abort detection of previous guy too but not necessary
   }
+  pthread_mutex_unlock(&alloc_mutex);
   return st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
 }
 
