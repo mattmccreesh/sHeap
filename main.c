@@ -41,6 +41,7 @@ int non_wrapper(int size){
 }
 
 int main(){
+  /*
   int* a = make_ptr(2);
   printf("%p\n", a);
   free(a);
@@ -57,5 +58,6 @@ int main(){
   free(b);
   free(c);
   printf("%d\n", z);
+  */
 }
 

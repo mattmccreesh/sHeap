@@ -2,6 +2,8 @@
 #define __SHEAP_ALLOC_H
 #include "sheap.h"
 
+void* __SHEAP_LAST_MALLOCD;
+
 // Allocation wrapper
 void* allocate_blocks ( int n_blocks );
 // Print function for ptrs

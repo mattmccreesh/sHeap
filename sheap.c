@@ -14,6 +14,8 @@ pthread_mutex_t alloc_mutex;//to protect alignment of metadata to data
 // Load & define global ptr
 void* __SHEAP_BASE = NULL;
 
+extern void* __SHEAP_LAST_MALLOCD;
+
 pthread_key_t key_last_ret;
 pthread_key_t key_ret_addr_overwritten;
 pthread_key_t key_overwritten_stack_location;
@@ -227,18 +229,17 @@ void* realloc(void* ptr, size_t size){
 
 // Frees a memory allocation pointed to by ptr
 void free(void* ptr){
-    if(ptr){
-      if ( PRINT ) {
-        write_char('F');
-      }
-      pthread_mutex_lock(&alloc_mutex);
+    if(ptr && (ptr >=  __SHEAP_BLOCK_START && ptr < __SHEAP_LAST_MALLOCD)){
+        if ( PRINT ) {
+            write_char('F');
+        }
+        pthread_mutex_lock(&alloc_mutex);
         // Get the flist node  
         struct flist_node* target_node = get_node_from_location(ptr);
-        // Get the 
+        // Get the pht_entry
         struct pht_entry* pht_e = pht_search(target_node->type);
         // Free the space
         flist_dealloc_space(ptr, st_get_freeptr(pht_e->pool_ptr, target_node->size));
-	pthread_mutex_unlock(&alloc_mutex);
+	    pthread_mutex_unlock(&alloc_mutex);
     }
 }
-
