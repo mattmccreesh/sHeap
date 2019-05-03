@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 void* __SHEAP_LAST_MALLOCD = NULL;
+void* __SHEAP_LAST_VALID_LOC = NULL;
 
 /**
  *  Allocates a number of blocks and returns a pointer to the start of them
@@ -12,6 +13,7 @@ void* __SHEAP_LAST_MALLOCD = NULL;
 void* allocate_blocks ( int n_blocks ) {
     void* malloc_addr =  sbrk(BLOCK_SIZE * n_blocks );
     __SHEAP_LAST_MALLOCD = malloc_addr;
+    __SHEAP_LAST_VALID_LOC = malloc_addr + BLOCK_SIZE * n_blocks -1;
     return malloc_addr;
 }
 

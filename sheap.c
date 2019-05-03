@@ -15,6 +15,7 @@ pthread_mutex_t alloc_mutex;//to protect alignment of metadata to data
 void* __SHEAP_BASE = NULL;
 
 extern void* __SHEAP_LAST_MALLOCD;
+extern void* __SHEAP_LAST_VALID_RET;
 
 pthread_key_t key_last_ret;
 pthread_key_t key_ret_addr_overwritten;
@@ -199,7 +200,16 @@ void* realloc(void* ptr, size_t size){
     free ( ptr );
     return NULL;
   }
-
+  char* ret = (char*) malloc(size);
+  char* p = (char*) ptr;
+  for(int i = 0; i < size; i++){
+    if((void*)p + i > __SHEAP_LAST_VALID_LOC){
+	    break;
+    }
+    ret[i] = p[i];
+  }
+  return (void*) ret;
+  /*
   void* call_site = __builtin_return_address(0);
   
   struct flist_node* target_node = get_node_from_location(ptr);
@@ -224,7 +234,7 @@ void* realloc(void* ptr, size_t size){
     return (void*) temp;
   } else {
     return ptr;
-  }
+  }*/
 }
 
 // Frees a memory allocation pointed to by ptr

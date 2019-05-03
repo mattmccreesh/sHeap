@@ -3,6 +3,7 @@
 #include "sheap.h"
 
 void* __SHEAP_LAST_MALLOCD;
+void* __SHEAP_LAST_VALID_LOC;
 
 // Allocation wrapper
 void* allocate_blocks ( int n_blocks );
