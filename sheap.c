@@ -200,16 +200,6 @@ void* realloc(void* ptr, size_t size){
     free ( ptr );
     return NULL;
   }
-  char* ret = (char*) malloc(size);
-  char* p = (char*) ptr;
-  for(int i = 0; i < size; i++){
-    if((void*)p + i > __SHEAP_LAST_VALID_LOC){
-	    break;
-    }
-    ret[i] = p[i];
-  }
-  return (void*) ret;
-  /*
   void* call_site = __builtin_return_address(0);
   
   struct flist_node* target_node = get_node_from_location(ptr);
@@ -233,8 +223,9 @@ void* realloc(void* ptr, size_t size){
     // Return the new one
     return (void*) temp;
   } else {
+    target_node->size = size;
     return ptr;
-  }*/
+  }
 }
 
 // Frees a memory allocation pointed to by ptr
