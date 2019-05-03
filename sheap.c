@@ -229,7 +229,7 @@ void* realloc(void* ptr, size_t size){
 
 // Frees a memory allocation pointed to by ptr
 void free(void* ptr){
-    if(ptr && (ptr >=  __SHEAP_BLOCK_START && ptr < __SHEAP_LAST_MALLOCD)){
+    if(ptr && (ptr >=  __SHEAP_BLOCK_START && ptr <= __SHEAP_LAST_MALLOCD)){
         if ( PRINT ) {
             write_char('F');
         }
