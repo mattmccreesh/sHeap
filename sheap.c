@@ -223,7 +223,9 @@ void* realloc(void* ptr, size_t size){
     // Return the new one
     return (void*) temp;
   } else {
-    target_node->size = size;
+      if(size > target_node->size){//in order to correctly track number of blocks, only update size if it grows as still all blocks will be there
+        target_node->size = size;
+      }
     return ptr;
   }
 }
