@@ -17,6 +17,8 @@ void* __SHEAP_BASE = NULL;
 extern void* __SHEAP_LAST_MALLOCD;
 extern void* __SHEAP_LAST_VALID_RET;
 
+//thread-local variable in c99
+//for thread safety of malloc wrapper detection
 pthread_key_t key_last_ret;
 pthread_key_t key_ret_addr_overwritten;
 pthread_key_t key_overwritten_stack_location;
@@ -33,33 +35,25 @@ void markAsNonWrapper(){
   pthread_setspecific(key_overwritten_stack_location, NULL);
 }
 
-//overwrite with this addr + 4 (4 to avoid prologue of function)
-//will interept return of susupected wrapper, determine if it really is a wrapper
-//must get state back to caller of wrapper as if returned directly to it
+//overwrite suspected wrapper return with this addr + 4 (4 to avoid prologue of function)
+//will intercept return of susupected wrapper, determine if it really is a wrapper
+//must get state back to caller of wrapper as if returned directly to it. Registers and stack frame intact
 void wrapperDetector(){
   //archive value returned but intercepted
   asm("mov %rax, %r11");
   asm("push %r11");//push as register may change in function call
-  //asm("mov %0, %%rax" : : "r"(last_ret));
-  pthread_getspecific(key_last_ret);//get this in rax
-  //if return value (rax) of suspected warpper is same as last malloc ret, return
+  pthread_getspecific(key_last_ret);//get last malloc return from this thread into rax
+  //if return value, rax, of suspected warpper is same as last malloc ret, mark as wrapper
   asm("cmp %rax, %r11");
   asm goto("jne %l0\n" : : : : notWrapper);
   //if here it is a wrapper
-  /*
-  write_char('W');
-  write_char('\n');*/
   markAsWrapper();
   asm goto("jmp %l0\n" : : : : jmpBack);
 notWrapper:
   //mark as non-wrapper
-  /*
-  write_char('N');
-  write_char('W');
-  write_char('\n');*/
   markAsNonWrapper();
 jmpBack:
-  pthread_getspecific(key_ret_addr_overwritten);//put this in rax
+  pthread_getspecific(key_ret_addr_overwritten);//put laste overwritten return address in rax
   asm("mov %rax, %r11");
   asm("pop %rax");//restore stack, get rax back to propogate return value properly
   asm("jmp *%r11");
@@ -106,8 +100,6 @@ void* malloc(size_t size){
   //if it is a wrapper
   if(pht_e->pool_ptr != NULL && pht_e->pool_ptr->wrapper_or_alloc_size == 0){
     //unwind to get real call site
-    /*write_char('W');
-    write_char('\n');*/
     unw_cursor_t cursor;
     unw_context_t uc;
     unw_word_t ip;
@@ -122,14 +114,10 @@ void* malloc(size_t size){
   } 
   else if(pht_e->pool_ptr != NULL && pht_e->pool_ptr->wrapper_or_alloc_size != size && pht_e->pool_ptr->wrapper_or_alloc_size != (size_t)-1){
     //do stack unwinding
-    /* 
-    write_char('S');
-    write_char('W');
-    write_char('\n');*/
     //first step is to see if it is nested suspected wrapper
     //if we are already probing caller, we should stop probing outer [it is highly unikely to be a malloc wrapper] but still probe inner
     if(pthread_getspecific(key_overwritten_stack_location) != NULL){
-      *((void**)pthread_getspecific(key_overwritten_stack_location)) = pthread_getspecific(key_ret_addr_overwritten);//abort probing for outer 
+      *((void**)pthread_getspecific(key_overwritten_stack_location)) = pthread_getspecific(key_ret_addr_overwritten);//abort probing for outer nested suspected wrapper 
     }
 
     unw_cursor_t cursor;
@@ -158,7 +146,7 @@ void* malloc(size_t size){
       pthread_setspecific(key_wrapper_entry, pht_e->pool_ptr);
       pthread_mutex_unlock(&alloc_mutex);
       return pthread_getspecific(key_last_ret);
-    }//in else case we could abort detection of previous guy too but not necessary
+    }
   }
   void* ret = st_allocate_block(&(pht_e->pool_ptr), size, pht_e->call_site);
   pthread_mutex_unlock(&alloc_mutex);
@@ -232,6 +220,7 @@ void* realloc(void* ptr, size_t size){
 
 // Frees a memory allocation pointed to by ptr
 void free(void* ptr){
+    //don't do anything if null pointer. Also check it is in range of pointers we allocated (not necessary but not a bad thing to do)
     if(ptr && (ptr >=  __SHEAP_BLOCK_START && ptr <= __SHEAP_LAST_MALLOCD)){
         if ( PRINT ) {
             write_char('F');
@@ -243,6 +232,6 @@ void free(void* ptr){
         struct pht_entry* pht_e = pht_search(target_node->type);
         // Free the space
         flist_dealloc_space(ptr, st_get_freeptr(pht_e->pool_ptr, target_node->size));
-	    pthread_mutex_unlock(&alloc_mutex);
+	pthread_mutex_unlock(&alloc_mutex);
     }
 }
