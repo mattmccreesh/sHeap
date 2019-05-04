@@ -1,6 +1,7 @@
 #include "util.h"
 #include <unistd.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 void* __SHEAP_LAST_MALLOCD = NULL;
 void* __SHEAP_LAST_VALID_LOC = NULL;
@@ -12,6 +13,11 @@ void* __SHEAP_LAST_VALID_LOC = NULL;
  */
 void* allocate_blocks ( int n_blocks ) {
     void* malloc_addr =  sbrk(BLOCK_SIZE * n_blocks );
+    if(__SHEAP_LAST_VALID_LOC != NULL && malloc_addr != __SHEAP_LAST_VALID_LOC + 1){
+	    char c[] = "This program has changed the program break. sHeap does not support programs\n\tthat directly change the program break\n\0";
+	    write(2, &c, 118);
+	    exit(1);
+    }
     __SHEAP_LAST_MALLOCD = malloc_addr;
     __SHEAP_LAST_VALID_LOC = malloc_addr + BLOCK_SIZE * n_blocks -1;
     return malloc_addr;
