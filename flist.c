@@ -59,6 +59,7 @@ void* flist_alloc_space (size_t size, int n_blocks, void* type, struct flist_nod
     }
   } else {
     struct flist_node* nhead = _head->next;
+    _head->size = size;
     loc = get_location_from_node(_head);
     _head->next = NULL;
     if ( nhead != NULL ) {
