@@ -21,11 +21,12 @@ extern struct st_elem* __SHEAP_ST_NEXT;
 
 //update global constants
 void* __init_st(void* start_block);
-//return pointer to struct
+//allocate and return pointer to size_table element in table
 struct st_elem* create_st_elem(size_t alloc_size);
+//Reutrn address of free list pointer for given size and element in table
 struct flist_node** st_get_freeptr(struct st_elem*, size_t alloc_size);
+//allocate block for malloc/calloc/realloc
 void* st_allocate_block(struct st_elem** pool_ptr, size_t alloc_size, void* call_site);
-//todo
-//void allocate_block_from_sizetable(struct st_elem*, size_t);
+//convert size to sizeclass index. Number of blocks is 2^sizeclassindex
 int get_sizeclass_index(size_t);
 #endif
