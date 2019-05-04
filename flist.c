@@ -7,7 +7,10 @@ void* __SHEAP_FLIST_START;
 void* __SHEAP_BLOCK_START;
 void* __SHEAP_FLIST_UNUSED;
 
-void* __init_flist(void* start_addr){
+void* __init_flist(void* start_addr)
+//@requires start_addr != 0 &*& malloc_block(start_addr,(BLOCK_SIZE*__SHEAP_FLIST_BLOCKS));
+//@ensures result == start_addr + (BLOCK_SIZE*__SHEAP_FLIST_BLOCKS);
+{
     __SHEAP_FLIST_START = start_addr;
     __SHEAP_FLIST_UNUSED = start_addr;
     __SHEAP_BLOCK_START = start_addr + (BLOCK_SIZE*__SHEAP_FLIST_BLOCKS);

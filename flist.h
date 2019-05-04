@@ -4,9 +4,11 @@
 #include <stddef.h>
 
 // Externs
+/*
 extern void* __SHEAP_FLIST_START;
 extern void* __SHEAP_BLOCK_START;
 extern void* __SHEAP_FLIST_UNUSED;
+*/
 
 #define __SHEAP_FLIST_BLOCKS 100
 
