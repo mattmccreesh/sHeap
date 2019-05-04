@@ -16,7 +16,14 @@ LD_PRELOAD=$PWD/sheap.so ./runner
 
 ## Files
 
-`main.c` - This is a test file that we can (should) use to make sure things are working
+`main.c` - This is a test file that we can (should) use to make sure things are working. It compiles to its own exececutable unrelated to sheap.
 
 `sheap.c` - This is the main file that houses our implementations of `malloc`, `calloc`, `realloc`, and `free`. This should be compiled as a shared object file and preloaded to be used at runtime.
 
+`sizetable.c` - Implements data structure to track size classes for each allocation site, having pointer to head freelist pointer for each size class. Also tracks if callsite is malloc wrapper
+
+`flist.c` - Maintains and updates free lists of blocks per size class per allocation site. Resues free blocks or calls system call to allocate more space
+
+`pool_hash_table.c` - This is the hash table to map allocation sites to pools. Pools are defined by the sizetable for the pool, so this maps alloc site to a sizetable element which in turn stores head pointers for size classes for that call site.
+
+`util.c` - This defines util functions for allocations, system calls, and debugging utilities.  For example, it allocates memory with sys call. It also provides printing utilities as printf uses malloc and should not be used for debugging within malloc
