@@ -7,10 +7,12 @@
 #define NUM_LARGE_SIZE_CLASSES 50
 #define __SHEAP_ST_BLOCKS 25
 
-//50 size classes for exponential size class growth
-//supports max size_t size allocation request on 64 bit system
+// 50 size classes for exponential size class growth
+// Supports max size_t size allocation request on 64 bit system
 struct st_elem {
-    size_t wrapper_or_alloc_size;//0 indicates wrapper, -1 indicates non-wrapper
+    // 0 indicates wrapper, -1 indicates non-wrapper
+    size_t wrapper_or_alloc_size;
+    // Pointer to freelist head
     struct flist_node* freeptr[NUM_LARGE_SIZE_CLASSES];
 };
 
