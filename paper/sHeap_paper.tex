@@ -149,14 +149,14 @@ by never reusing freed memory, effectively replacing free() with a function
 which does nothing. This is almost trivial to implement, but incurs an 
 extremely large overhead of consumed virtual memory.
 
-Some other defenses include probabilistic defenses, such as DieHard 
-(\cite{b2}) and Archipelago (\cite{b3}). These defenses both rely on defeating 
+Some other defenses include probabilistic defenses, such as DieHard \cite{b2}
+and Archipelago \cite{b3}. These defenses both rely on defeating 
 use-after-free attacks by making it improbable that the attacker will be able 
 to align heap objects. It does this by randomly locating objects in a larger 
 heap than usual. This of course results in worse memory consumption, because 
 it needs to be larger in order to ensure the probabilistic defense.
 
-Cling (\cite{b1}) is a memory allocator which attempts to provide protection 
+Cling \cite{b1} is a memory allocator which attempts to provide protection 
 from dangling pointer in particular through the use of type safety in heap 
 allocations. It does this by analyzing the return site of malloc (by looking 
 at malloc’s stack frame), as well as categorizing objects based of this size. 
@@ -403,7 +403,7 @@ logic minimization tool from \cite{b4} that was used in the testing of Cling due
 its allocation patterns so we felt it best to include it here. GNU Make is a 
 real-world program that sees active usage. For evaluation, Make was tested by building 
 Espresso from source. Gimp and evince were included in the benchmarking process because 
-we wanted to perform some testing of bigger allocations (>16KB). Evince is a PDF reader 
+we wanted to perform some testing of bigger allocations ($>16KB$). Evince is a PDF reader 
 that ships with Ubuntu 18, and Gimp is an image manipulation program that, 
 unsurprisingly, operates on images. Both images and PDFs, which tend to be bigger in 
 size. Both Gimp and Evince were tested by simply opening an image or PDF to measure the 
@@ -485,7 +485,7 @@ the number of allocation calls to the kernel.
 \subsection{Performance Hurdles}
 The team understands where sHeap is having its performance hindered most severely. Due to 
 the time constraint on the project, we had to choose which features/capabilities to tackle 
-and give priority. In a perfect world, small allocations (<16KB) are performed in a more 
+and give priority. In a perfect world, small allocations ($<16KB$) are performed in a more 
 optimal manner. For example, the allocation of a small 16-byte structs should all be tucked 
 together into a single virtual memory block, but as it stands now, a new block is allocated 
 for each small allocation. This means both a syscall for each small allocation as well as 
