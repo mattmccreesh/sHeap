@@ -155,9 +155,9 @@ the heap needs to be larger in order to ensure the probabilistic defense.
 Cling \cite{b1} is a memory allocator which attempts to provide protection 
 from dangling pointer in particular through the use of type safety in heap 
 allocations. It does this by analyzing the return site of malloc (by looking 
-at malloc'’s stack frame), as well as categorizing objects based off this size. 
+at malloc'’s stack frame), as well as categorizing objects based off the requested allocation size. 
 It does this in order to determine run-time type information based off 
-assumptions about the way that programmers frequently perform allocations of data. Cling performs many optimizations and as such is capable of 
+assumptions about the way that programmers frequently perform allocations of data. While the naive approach mentioned above does not allow any address space reuse over time, Cling allows for type-safe address space reuse.  By recognizing that control flow hijacking through use-after-free vulnerabilities generally only happens when the type of data in memory changes over time, Cling constrains memory reuse to be for pools of allocations of the same type and alignment. Cling performs many optimizations and as such is capable of 
 reducing runtime and memory overhead to something comparable (and even 
 sometimes better) than traditional GNU malloc. 
 
@@ -170,6 +170,8 @@ constraints of the team. This means that although Cling is capable of
 optimizing small allocations by storing many in a single allocated block 
 \cite{b1}, we were unable to perform this optimization in order to 
 prioritize goals such as the detection of wrappers and thread safety.
+
+The goal of sHeap is to allow for type-safe memory reuse in the heap. sHeap aims to mitigate what an attacker can do with a dangling pointer by preventing temporal type confusion.  If allocations are constrained to pools of the same type over time, and allocations are aligned to start at the same locations, then the type of data in memory never changes.  This means any function pointers, or pointers to function pointers, store valid values for an object of the type that is stored in that pool.  While a dangling pointer may be used to read values of, or overwrite, fields of a valid object in memory, function calls through dangling pointers should be constrained to only valid functions for objects of the given type.  This prevents arbitrary code execution through dangling pointers. Like Cling, sHeap assumes the allocation site determines the type of the allocation. 
 
 The implementation of this technique was done by replacing the 4 malloc 
 calls defined in traditional glibc. These can all be performed by loading 
@@ -187,7 +189,9 @@ consistent view of the heap through our allocator.
   \label{fig:sheap-model}
 \end{figure}
 
-sHeap is primarily made up of three coordinating components. First, the 
+sHeap divides the heap into two types of memory: metadata and program data.  Program data is managed in 16 KB blocks by the metadata.  Nodes store metadata for each 16 KB block, allowing free blocks to be pooled together in lists.  It is important that metadata is stored out-of-band, as storing metadata in band would change the type of the memory in a pool. This would break the goal of type safe memory reuse, as the memory would have the type of the metadata structures instead of the type of the objects that pool contains.  This could be exploited by attackers.  
+
+sHeap metadata is primarily made up of three coordinating components. First, the 
 pool hash table tracks the mapping from allocation sites to their 
 corresponding site pools. Then the site pool manages the different pointers 
 to the free space available for each size class. The free space is stored 
@@ -240,7 +244,7 @@ to be dependent on the allocation site and the size class of allocations, and as
 such each pair of allocation and size class has its own free list. The head of 
 the free list is stored in the size table, and allocation attempts to find a 
 previously allocated node before it attempts to request more allocated memory. The 
-free list is designed to make reverse lookups - programmed owned data to free list 
+free list is designed to make reverse lookups - program owned data to free list 
 nodes - performed in constant time. This is so that the free operation is performed 
 in constant time, and is capable of performing a lookup for the relevant size class 
 and type information stored in the node. This is necessary in order to append the 

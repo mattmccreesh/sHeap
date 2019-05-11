@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9.6210 64-bit) (preloaded format=pdflatex 2017.2.24)  10 MAY 2019 22:40
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9.6210 64-bit) (preloaded format=pdflatex 2017.2.24)  10 MAY 2019 23:12
 entering extended mode
 **./sHeap_paper.tex
 (sHeap_paper.tex
@@ -462,21 +462,21 @@ Missing character: There is no ™ in font ptmr7t!
 <sheap_model.png, id=9, 963.6pt x 722.7pt>
 File: sheap_model.png Graphic file (type png)
  <use sheap_model.png>
-Package pdftex.def Info: sheap_model.png used on input line 185.
+Package pdftex.def Info: sheap_model.png used on input line 187.
 (pdftex.def)             Requested size: 252.0pt x 189.0003pt.
- [2 <./sheap_model.png>]
+ [2]
 Missing character: There is no â in font ptmr7t!
 Missing character: There is no € in font ptmr7t!
 Missing character: There is no ™ in font ptmr7t!
- [3] [4]
+ [3 <./sheap_model.png>] [4]
 Missing character: There is no â in font ptmr7t!
 Missing character: There is no € in font ptmr7t!
 Missing character: There is no ™ in font ptmr7t!
-LaTeX Font Info:    Try loading font information for U+msa on input line 392.
+LaTeX Font Info:    Try loading font information for U+msa on input line 396.
  ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 392.
+LaTeX Font Info:    Try loading font information for U+msb on input line 396.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
@@ -485,7 +485,7 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 File: sheap-vsize-overhead-graph.png Graphic file (type png)
 
 <use sheap-vsize-overhead-graph.png>
-Package pdftex.def Info: sheap-vsize-overhead-graph.png used on input line 412.
+Package pdftex.def Info: sheap-vsize-overhead-graph.png used on input line 416.
 
 (pdftex.def)             Requested size: 252.0pt x 153.96497pt.
 
@@ -493,109 +493,110 @@ Package pdftex.def Info: sheap-vsize-overhead-graph.png used on input line 412.
 File: sheap-rss-overhead-graph.png Graphic file (type png)
 
 <use sheap-rss-overhead-graph.png>
-Package pdftex.def Info: sheap-rss-overhead-graph.png used on input line 424.
+Package pdftex.def Info: sheap-rss-overhead-graph.png used on input line 428.
 (pdftex.def)             Requested size: 252.0pt x 153.68935pt.
-
-<sheap-mem-overhead-graph.png, id=23, 950.55125pt x 577.15625pt>
+ [5 <./sheap-vsize-overhead-graph.png>]
+<sheap-mem-overhead-graph.png, id=29, 950.55125pt x 577.15625pt>
 File: sheap-mem-overhead-graph.png Graphic file (type png)
 
 <use sheap-mem-overhead-graph.png>
-Package pdftex.def Info: sheap-mem-overhead-graph.png used on input line 434.
+Package pdftex.def Info: sheap-mem-overhead-graph.png used on input line 438.
 (pdftex.def)             Requested size: 252.0pt x 153.00732pt.
- [5 <./sheap-vsize-overhead-graph.png> <./sheap-rss-overhead-graph.png>]
-<sheap-sys-time-overhead-graph.png, id=31, 995.72pt x 607.26875pt>
+
+<sheap-sys-time-overhead-graph.png, id=30, 995.72pt x 607.26875pt>
 File: sheap-sys-time-overhead-graph.png Graphic file (type png)
 
 <use sheap-sys-time-overhead-graph.png>
 Package pdftex.def Info: sheap-sys-time-overhead-graph.png used on input line 4
-59.
+63.
 (pdftex.def)             Requested size: 252.0pt x 153.68857pt.
 
-<sheap-usr-time-overhead-graph.png, id=32, 1002.74625pt x 605.26125pt>
+<sheap-usr-time-overhead-graph.png, id=31, 1002.74625pt x 605.26125pt>
 File: sheap-usr-time-overhead-graph.png Graphic file (type png)
 
 <use sheap-usr-time-overhead-graph.png>
 Package pdftex.def Info: sheap-usr-time-overhead-graph.png used on input line 4
-66.
+70.
 (pdftex.def)             Requested size: 252.0pt x 152.10919pt.
 Missing character: There is no â in font ptmr7t!
 Missing character: There is no € in font ptmr7t!
 Missing character: There is no ™ in font ptmr7t!
+ [6 <./sheap-rss-overhead-graph.png> <./sheap-mem-overhead-graph.png> <./sheap-
+sys-time-overhead-graph.png> <./sheap-usr-time-overhead-graph.png>]
 Missing character: There is no â in font ptmr7t!
 Missing character: There is no € in font ptmr7t!
 Missing character: There is no ™ in font ptmr7t!
- [6 <./sheap-mem-overhead-graph.png> <./sheap-sys-time-overhead-graph.png> <./s
-heap-usr-time-overhead-graph.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 516--517
+
+Underfull \hbox (badness 10000) in paragraph at lines 520--521
 []\OT1/ptm/m/n/8 Akritidis, P. ``Cling: A Mem-ory Al-lo-ca-tor to Mit-i-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 516--517
+Underfull \hbox (badness 10000) in paragraph at lines 520--521
 \OT1/ptm/m/n/8 gate Dan-gling Point-ers,'' \OT1/ptm/m/it/8 19th Usenix Se-cu-ri
 ty Sym-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 516--517
+Underfull \hbox (badness 10000) in paragraph at lines 520--521
 \OT1/ptm/m/it/8 po-sium\OT1/ptm/m/n/8 , Wash-ing-ton DC, 2010. [On-line]. Avail
 -able:
  []
 
 
-Overfull \hbox (2.37357pt too wide) in paragraph at lines 516--517
+Overfull \hbox (2.37357pt too wide) in paragraph at lines 520--521
 \OT1/ptm/m/n/8 https://www.usenix.org/legacy/event/sec10/tech/full[]papers/Akri
 tidis.pdf. 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 517--518
+Underfull \hbox (badness 10000) in paragraph at lines 521--522
 []\OT1/ptm/m/n/8 Berger, E., and Zorn, B. ``DieHard: Prob-a-bilis-tic Mem-ory
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 517--518
+Underfull \hbox (badness 10000) in paragraph at lines 521--522
 \OT1/ptm/m/n/8 Safety for Un-safe Lan-guages,'' \OT1/ptm/m/it/8 Pro-ceed-ings o
 f the ACM
  []
 
 
-Underfull \hbox (badness 6842) in paragraph at lines 517--518
+Underfull \hbox (badness 6842) in paragraph at lines 521--522
 \OT1/ptm/m/it/8 SIG-PLAN Con-fer-ence on Pro-gram-ming Lan-guage De-sign and
  []
 
 
-Underfull \hbox (badness 3078) in paragraph at lines 518--519
+Underfull \hbox (badness 3078) in paragraph at lines 522--523
 []\OT1/ptm/m/n/8 Lvin, V., No-vark, G., Berger, E., and Zorn, B. ``Archipelago:
 
  []
 
 
-Underfull \hbox (badness 4927) in paragraph at lines 518--519
+Underfull \hbox (badness 4927) in paragraph at lines 522--523
 \OT1/ptm/m/n/8 Trad-ing Ad-dress Space for Re-li-a-bil-ity and Se-cu-rity,'' \O
 T1/ptm/m/it/8 SIGOPS
  []
 
 
-Underfull \hbox (badness 4060) in paragraph at lines 518--519
+Underfull \hbox (badness 4060) in paragraph at lines 522--523
 \OT1/ptm/m/it/8 Oper. Syst.\OT1/ptm/m/n/8 , Rev. 42, 2008, pp. 115--124. [On-li
 ne]. Avail-able:
  []
 
 
-Underfull \hbox (badness 2644) in paragraph at lines 519--520
+Underfull \hbox (badness 2644) in paragraph at lines 523--524
 []\OT1/ptm/m/n/8 galengold, Espresso Logic Min-i-mizer, 2017, GitHub Repos-i-to
 ry:
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 521--522
+Underfull \hbox (badness 10000) in paragraph at lines 525--526
 []\OT1/ptm/m/n/8 Narang, S. ''Use-After-Free Vul-ner-a-bil-ity in Google Chrome
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 521--522
+Underfull \hbox (badness 10000) in paragraph at lines 525--526
 \OT1/ptm/m/n/8 https://www.tenable.com/blog/use-after-free-vulnerability-in-goo
 gle-
  []
@@ -611,24 +612,22 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[7
-
-] (sHeap_paper.aux) ) 
+[7] (sHeap_paper.aux) ) 
 Here is how much of TeX's memory you used:
  5556 strings out of 493333
  84893 string characters out of 3139182
- 158025 words of memory out of 3000000
+ 157025 words of memory out of 3000000
  9018 multiletter control sequences out of 15000+200000
  35842 words of font info for 71 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 42i,8n,40p,529b,265s stack positions out of 5000i,500n,10000p,200000b,50000s
-{C:/Program Files/MiKTeX 2.9/fonts/enc/dvips/base/8r.enc}<
-C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Progr
-am Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/
-MiKTeX 2.9/fonts/type1/urw/times/utmb8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/
-type1/urw/times/utmbi8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/
-utmr8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pfb>
-Output written on sHeap_paper.pdf (7 pages, 219254 bytes).
+ 42i,8n,40p,897b,265s stack positions out of 5000i,500n,10000p,200000b,50000s
+{C:/Program Files/MiKTeX 2.9/fonts/enc/dvips/base/8r.enc
+}<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Pro
+gram Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program File
+s/MiKTeX 2.9/fonts/type1/urw/times/utmb8a.pfb><C:/Program Files/MiKTeX 2.9/font
+s/type1/urw/times/utmbi8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/time
+s/utmr8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pfb>
+Output written on sHeap_paper.pdf (7 pages, 220574 bytes).
 PDF statistics:
  64 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
