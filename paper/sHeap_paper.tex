@@ -28,7 +28,7 @@ czapfel@stevens.edu}
 \maketitle
 
 \begin{abstract}
-When an object in memory is deallocated, the freed memory can still be accessible 
+When an object in memory is deallocated, the freed memory can still be accessed 
 by the program if any pointers to it are not nullified. Pointers left pointing 
 to objects that have been freed are referred to as dangling pointers. They 
 point to a location that once had a valid object of the type they point to but 
@@ -51,14 +51,14 @@ Dangling pointers to the heap, pointers left pointing to deallocated objects,
 are a major security concern. They were once thought to be too difficult for 
 attackers to exploit, as attackers would need to be able to force a program 
 to put his data in the same location as the dangling pointer pointed to. 
-Because of this, in the past vulnerabilities were sometimes left unpatched 
+Because of this, past vulnerabilities were sometimes left unpatched 
 for long periods of time and written off as non-critical. But as spatial 
 memory protections became more popular, the arms race between attackers and 
 defenders continued and it was shown that attackers could reliably exploit 
-use-after-free vulnerabilities. Heap Spraying and Heap Feng Shui allows an 
-attacker to reliably align his own data with that of a dangling pointer. 
-This means that reliable exploitation of these vulnerabilities is possible. 
-In fact, these attacks have been showing up in the wild, including 
+use-after-free vulnerabilities. Heap Spraying \cite{b8} and Heap Feng Shui 
+\cite{b7} allows an attacker to reliably align his own data with that of a 
+dangling pointer. This means that reliable exploitation of these vulnerabilities 
+is possible. In fact, these attacks have been showing up in the wild, including 
 in a zero-day exploit on the Google Chrome web browser, for which a 
 vulnerability was patched in March 2019  \cite{b6}. Use-after-free vulnerabilities are 
 very attractive for attackers to exploit because there is potential for 
@@ -92,7 +92,7 @@ reviews, as they require understanding the state of memory when analyzing
 pointer dereferences. Such memory state depends on code that has already 
 executed, and synchronization of code execution, making this task 
 especially difficult in large applications. To address this problem, we 
-introduce and implemented a memory allocator, sHeap. Memory allocator 
+introduce and implement a memory allocator, sHeap. Memory allocator 
 changes have been made to address other security issues such as double 
 frees and overwrites of heap metadata, so there is precedent in 
 implementing security hardening in the run time allocator itself. Our 
@@ -105,10 +105,15 @@ sHeap redefines the memory allocator interfaces (malloc(), new(),
 calloc(), and realloc()) to allow for pooling of allocations over time 
 with objects of the same type. sHeap uses the call site to malloc, 
 calloc, and realloc to determine the type, assuming that a call site to 
-malloc or new will always request memory of the same type. It also does 
+malloc or new will always request memory of the same type. It also performs 
 malloc wrapper detection to find call sites to simple malloc wrappers so 
 as to avoid pooling objects that are of different types because they are 
-allocated from wrappers of malloc. Simple malloc wrappers may just check the value returned by malloc or collect statistics before returning what malloc returns. They obscure the real allocation site, which sHeap uses to determine allocation type, so they must be unwrapped.  This wrapper detection allows us to find the call site to the new C++ operator, which allows us to properly pool C++ objects and dynamically allocated arrays. 
+allocated from wrappers of malloc. Simple malloc wrappers may just check the 
+value returned by malloc or collect statistics before returning what malloc 
+returns. They obscure the real allocation site, which sHeap uses to determine 
+allocation type, so they must be unwrapped. This wrapper detection allows us 
+to find the call site to the new C++ operator, which allows us to properly 
+pool C++ objects and dynamically allocated arrays. 
 
 Our allocator defends against arbitrary code execution through a dangling 
 pointer.  It does not prevent dangling pointers from being used, but it 
@@ -523,6 +528,8 @@ safe.
 \bibitem{b4} galengold, Espresso Logic Minimizer, 2017, GitHub Repository: https://github.com/galengold/espresso-logic.
 \bibitem{b5} jeetsukumaran, Srupy: System Resource Usage Profiler, 2008, GitHub Repository: https://github.com/jeetsukumaran/Syrupy.
 \bibitem{b6} Narang, S. ''Use-After-Free Vulnerability in Google Chrome Exploited In The Wild (CVE-2019-5786),'' March 6 2019. Avialable: https://www.tenable.com/blog/use-after-free-vulnerability-in-google-chrome-exploited-in-the-wild-cve-2019-5786
+\bibitem{b7} Sotirov, A. ``Heap Feng Shui in JavaScript,'' \textit{Black Hat Europe}, 2007. [Online]. Available: https://www.blackhat.com/presentations/bh-europe-07/Sotirov/Presentation/bh-eu-07-sotirov-apr19.pdf.
+\bibitem{b8} ``Heap Spraying,'' \textit{Wikipedia}, Wikipedia. [Online]. Available: https://en.wikipedia.org/wiki/Heap\_spraying.
 \end{thebibliography}
 
 \end{document}
