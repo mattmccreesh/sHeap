@@ -2,8 +2,7 @@
 Creating a secure heap allocator resistant to use after free vulnerabilities. Inspired by the Cling allocator paper
 
 ## Usage
-
-The first step is to run `make` at the top level in order to compile the shared object file and the test file.
+The first step is to run `make` at the top level (the sHeap folder) in order to compile the shared object file and the test file.
 
 Once we have everything compiled, we need to set up the environment to run with our own implementations.
 
@@ -13,6 +12,10 @@ For example, if you are at the top of the repo you can run with:
 ```
 LD_PRELOAD=$PWD/sheap.so ./runner
 ```
+
+## Dependencies
+Libpthread was used, and generally exists on most systems
+Libunwind, was used, and can be installed on Ubuntu with sudo apt-get install libunwind-dev
 
 ## Files
 
