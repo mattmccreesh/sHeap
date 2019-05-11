@@ -108,7 +108,7 @@ calloc, and realloc to determine the type, assuming that a call site to
 malloc or new will always request memory of the same type. It also does 
 malloc wrapper detection to find call sites to simple malloc wrappers so 
 as to avoid pooling objects that are of different types because they are 
-allocated from wrappers of malloc. Simple malloc wrappers may just check the value returned by malloc or collect statistics before returning what malloc returns. They obscure the real allocation site, sHeap uses to determine allocation type, so they must be unwrapped.  This wrapper detection allows us to find the call site to the new C++ operator, which allows us to properly pool C++ objects and dynamically allocated arrays. 
+allocated from wrappers of malloc. Simple malloc wrappers may just check the value returned by malloc or collect statistics before returning what malloc returns. They obscure the real allocation site, which sHeap uses to determine allocation type, so they must be unwrapped.  This wrapper detection allows us to find the call site to the new C++ operator, which allows us to properly pool C++ objects and dynamically allocated arrays. 
 
 Our allocator defends against arbitrary code execution through a dangling 
 pointer.  It does not prevent dangling pointers from being used, but it 
