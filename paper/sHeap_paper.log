@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9.6210 64-bit) (preloaded format=pdflatex 2017.2.24)  10 MAY 2019 21:26
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9.6210 64-bit) (preloaded format=pdflatex 2017.2.24)  10 MAY 2019 22:40
 entering extended mode
 **./sHeap_paper.tex
 (sHeap_paper.tex
@@ -589,6 +589,18 @@ ry:
  []
 
 
+Underfull \hbox (badness 10000) in paragraph at lines 521--522
+[]\OT1/ptm/m/n/8 Narang, S. ''Use-After-Free Vul-ner-a-bil-ity in Google Chrome
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 521--522
+\OT1/ptm/m/n/8 https://www.tenable.com/blog/use-after-free-vulnerability-in-goo
+gle-
+ []
+
+
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
 
@@ -603,10 +615,10 @@ Before submitting the final camera ready copy, remember to:
 
 ] (sHeap_paper.aux) ) 
 Here is how much of TeX's memory you used:
- 5555 strings out of 493333
- 84889 string characters out of 3139182
- 158022 words of memory out of 3000000
- 9017 multiletter control sequences out of 15000+200000
+ 5556 strings out of 493333
+ 84893 string characters out of 3139182
+ 158025 words of memory out of 3000000
+ 9018 multiletter control sequences out of 15000+200000
  35842 words of font info for 71 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
  42i,8n,40p,529b,265s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -616,7 +628,7 @@ am Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/
 MiKTeX 2.9/fonts/type1/urw/times/utmb8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/
 type1/urw/times/utmbi8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/
 utmr8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pfb>
-Output written on sHeap_paper.pdf (7 pages, 219087 bytes).
+Output written on sHeap_paper.pdf (7 pages, 219254 bytes).
 PDF statistics:
  64 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

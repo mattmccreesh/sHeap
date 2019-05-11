@@ -60,7 +60,7 @@ attacker to reliably align his own data with that of a dangling pointer.
 This means that reliable exploitation of these vulnerabilities is possible. 
 In fact, these attacks have been showing up in the wild, including 
 in a zero-day exploit on the Google Chrome web browser, for which a 
-vulnerability was patched in March 2019. Use-after-free vulnerabilities are 
+vulnerability was patched in March 2019  \cite{b6}. Use-after-free vulnerabilities are 
 very attractive for attackers to exploit because there is potential for 
 control flow hijacking. If a dangling pointer to a heap object with 
 function pointers exists, an attacker may be able to launch code-reuse 
@@ -518,6 +518,7 @@ safe.
 \bibitem{b3} Lvin, V., Novark, G., Berger, E., and Zorn, B. ``Archipelago: Trading Address Space for Reliability and Security,'' \textit{SIGOPS Oper. Syst.}, Rev. 42, 2008, pp. 115--124. [Online]. Available: https://people.cs.umass.edu/~emery/pubs/asplos147-lvin.pdf.
 \bibitem{b4} galengold, Espresso Logic Minimizer, 2017, GitHub Repository: https://github.com/galengold/espresso-logic.
 \bibitem{b5} jeetsukumaran, Srupy: System Resource Usage Profiler, 2008, GitHub Repository: https://github.com/jeetsukumaran/Syrupy.
+\bibitem{b6} Narang, S. ''Use-After-Free Vulnerability in Google Chrome Exploited In The Wild (CVE-2019-5786),'' March 6 2019. Avialable: https://www.tenable.com/blog/use-after-free-vulnerability-in-google-chrome-exploited-in-the-wild-cve-2019-5786
 \end{thebibliography}
 
 \end{document}
