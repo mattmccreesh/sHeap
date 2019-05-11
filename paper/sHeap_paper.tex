@@ -143,7 +143,7 @@ blocks.  Most heap implementations, including GNU malloc, do not make any effort
 A naive approach to defend against dangling pointers is by preventing any 
 heap allocated objects from ever sharing the same memory space. This is done 
 by never reusing freed memory, effectively replacing free() with a function 
-which does nothing. This clearly will have high physical memory overhead for long running applications. More intelligent implementations of the naive solution aim to signal the operating system to release physical pages while not reusing virtual addresses, but this still can still have high physical memory overhead because of fragmentation, where small allocations hold back pages from being released.  The naive solution is simple implement, but incurs an extremely large overhead of consumed virtual memory.
+which does nothing. This clearly will have high physical memory overhead for long running applications. More intelligent implementations of the naive solution aim to signal the operating system to release physical pages while not reusing virtual addresses, but this can still have high physical memory overhead because of fragmentation, where small allocations hold back pages from being released.  The naive solution is simple implement, but incurs an extremely large overhead of consumed virtual memory.
 
 Some other defenses include probabilistic defenses, such as DieHard \cite{b2}
 and Archipelago \cite{b3}. These defenses both rely on defeating 
