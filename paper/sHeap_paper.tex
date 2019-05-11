@@ -28,14 +28,14 @@ czapfel@stevens.edu}
 \maketitle
 
 \begin{abstract}
-When an object in memory is deallocated, the freed memory can still accessible 
+When an object in memory is deallocated, the freed memory can still be accessible 
 by the program if any pointers to it are not nullified. Pointers left pointing 
 to objects that have been freed are referred to as dangling pointers. They 
 point to a location that once had a valid object of the type they point to but 
 no longer does. The presence of such pointers can lead to use-after-free 
 vulnerabilities. These vulnerabilities can be just as worrisome as spatial 
 memory errors like buffer overflows, as they can be used by an attacker to 
-hijack control flow of an application. In this paper, we propose and evaluate 
+hijack the control flow of an application. In this paper, we propose and evaluate 
 a runtime allocator, sHeap, which mitigates the dangers of use-after-free 
 vulnerabilities by preventing arbitrary code execution through dangling 
 pointers. Our solution is based off ideas and approaches proposed and 
@@ -55,19 +55,19 @@ Because of this, in the past vulnerabilities were sometimes left unpatched
 for long periods of time and written off as non-critical. But as spatial 
 memory protections became more popular, the arms race between attackers and 
 defenders continued and it was shown that attackers could reliably exploit 
-use-after-free vulnerabilities. Heap Spraying and Heap Feng Shui allow 
-attackers to reliably align his own data with that of a dangling pointer. 
+use-after-free vulnerabilities. Heap Spraying and Heap Feng Shui allows an 
+attacker to reliably align his own data with that of a dangling pointer. 
 This means that reliable exploitation of these vulnerabilities is possible. 
 In fact, these vulnerabilities have been showing up in the wild, including 
 in a zero-day exploits on the Google Chrome web browser, where a 
 vulnerability was patched in March 2019. Use-after-free vulnerabilities are 
-very attractive for attackers to exploit because there is a potential of 
+very attractive for attackers to exploit because there is potential for 
 control flow hijacking. If a dangling pointer to a heap object with 
 function pointers exists, an attacker may be able to launch code-reuse 
 attacks, such as return-to-libc, by convincing the program to make a 
 function call through a dangling pointer.  
 
-An interesting target of attacks is C++ objects.  C++ is object based and 
+An interesting target of attacks is C++ objects.  The C++ language is object based and 
 allows for inheritance. In C++, a parent class can declare some functions 
 as virtual functions, which can be redefined in derived classes. Virtual 
 functions should execute the version of the function of the object that 
@@ -108,10 +108,7 @@ calloc, and realloc to determine the type, assuming that a call site to
 malloc or new will always request memory of the same type. It also does 
 malloc wrapper detection to find call sites to simple malloc wrappers so 
 as to avoid pooling objects that are of different types because they are 
-allocated from wrappers of malloc that simply check the value or collect 
-statistics before returning what malloc returns. This wrapper detection 
-allows us to find the call site to new in C++ objects, which allows us 
-to properly pool C++ objects. 
+allocated from wrappers of malloc. Simple malloc wrappers may just check the value returned by malloc or collect statistics before returning what malloc returns. They obscure the real allocation site, sHeap uses to determine allocation type, so they must be unwrapped.  This wrapper detection allows us to find the call site to the new C++ operator, which allows us to properly pool C++ objects and dynamically allocated arrays. 
 
 Our allocator defends against arbitrary code execution through a dangling 
 pointer.  It does not prevent dangling pointers from being used, but it 
@@ -140,36 +137,34 @@ known as dlmalloc. GNU malloc works by allocating blocks of data using mmap
 calls, as well as brk calls, in order to find unavailable blocks to give to 
 the use. Malloc does this through the use of a free list which keeps track 
 of the size of program-owned memory that is no longer attached to allocated 
-blocks.
+blocks.  Most heap implementations, including GNU malloc, do not make any effort to mitigate use-after-free vulnerabilities. 
 
 \subsection{Related Work}
 A naive approach to defend against dangling pointers is by preventing any 
 heap allocated objects from ever sharing the same memory space. This is done 
 by never reusing freed memory, effectively replacing free() with a function 
-which does nothing. This is almost trivial to implement, but incurs an 
-extremely large overhead of consumed virtual memory.
+which does nothing. This clearly will have high physical memory overhead for long running applications. More intelligent implementations of the naive solution aim to signal the operating system to release physical pages while not reusing virtual addresses, but this still can still have high physical memory overhead because of fragmentation, where small allocations hold back pages from being released.  The naive solution is simple implement, but incurs an extremely large overhead of consumed virtual memory.
 
 Some other defenses include probabilistic defenses, such as DieHard \cite{b2}
 and Archipelago \cite{b3}. These defenses both rely on defeating 
 use-after-free attacks by making it improbable that the attacker will be able 
 to align heap objects. It does this by randomly locating objects in a larger 
 heap than usual. This of course results in worse memory consumption, because 
-it needs to be larger in order to ensure the probabilistic defense.
+the heap needs to be larger in order to ensure the probabilistic defense.
 
 Cling \cite{b1} is a memory allocator which attempts to provide protection 
 from dangling pointer in particular through the use of type safety in heap 
 allocations. It does this by analyzing the return site of malloc (by looking 
-at malloc’s stack frame), as well as categorizing objects based of this size. 
+at malloc'’s stack frame), as well as categorizing objects based off this size. 
 It does this in order to determine run-time type information based off 
-assumptions about the way that programmers frequently perform allocations of 
-information. Cling performs many optimizations and as such is capable of 
+assumptions about the way that programmers frequently perform allocations of data. Cling performs many optimizations and as such is capable of 
 reducing runtime and memory overhead to something comparable (and even 
 sometimes better) than traditional GNU malloc. 
 
 \section{Design}
 
 \subsection{Objective}
-SHeap is designed to protect heap memory in a manner similar to Cling, but 
+sHeap is designed to protect heap memory in a manner similar to Cling, but 
 unfortunately imposes a number of limitations due to the time and resource 
 constraints of the team. This means that although Cling is capable of 
 optimizing small allocations by storing many in a single allocated block 
@@ -199,7 +194,7 @@ to the free space available for each size class. The free space is stored
 in a linked list structure called a free list. \ref{fig:sheap-model} 
 provides a visual representation of the sHeap architecture. In the next 
 three subsections, we will go into the design and purpose of the three 
-big components mentioned above.
+main components mentioned above.
 
 \subsubsection{Pool Hash Table}
 The first layer of interaction into the sHeap ecosystem is the pool hash table 
@@ -214,23 +209,23 @@ a pointer to the isolated allocation site pool in order to connect the
 allocation site to the next stage in the pipeline.
 
 \subsubsection{Site Pool}
-The next primary data structure in cling is the size table. This is a struct for 
+The next primary data structure in sHeap is the site pool, also referred to as the size table. This is a struct for 
 every allocation site, managing the metadata for each allocation site pool. The 
 primary job of this data structure is to manage the pooling of allocations by 
-size class. A size class is a power of 2 KB allocation size starting at 16KB. 
+size class, which is why it is referred to as the size table. A size class is a power of 2 KB allocation size starting at 16KB. 
 That is, every allocation size of 16KB or less will be in the 0th size class 
 and be allocated only 1 block. Any allocation size of 16KB to 32KB will be in 
 the first size class and be given 2 blocks. The next size class corresponds 
 to an allocation of 4 blocks and is for allocation sizes between 32KB and 64KB. 
 The size table structure stores a table of pointers to free lists heads for each 
 size class, as well as metadata about allocation sizes used to determine if a 
-call site is a wrapper. Every time a new allocation site is found, a size table 
+call site is a wrapper. Every time a new allocation site is found, a site pool 
 element is created for that allocation site. For future allocation requests, this 
 structure will be used to find the free list head for the size class being 
 requested so type safe address space reuse can be done. During future deallocations, 
 this table is used to append freed block nodes to the correct free list for the 
 allocation site and size class of the original allocation. We will get more into 
-the specifics of this when discussing the free lists themselves. The size table 
+the specifics of this when discussing the free lists themselves. The site pool 
 structure is also very useful for wrapper detection. By having a field that 
 stores the original size requested, as well as whether or not this allocation site 
 was determined to be a wrapper or a non-wrapper, we can correctly and efficiently 
@@ -272,23 +267,18 @@ upper and lower four bytes then mod the result by the size of the PHT as
 dictated by that constant variable from earlier.
 
 \subsection{Site Pool}
-Now that we have found the the size table, which stores the pool metadata for an 
-allocation site, for this allocation site, we can discuss how allocation works. 
+Once the PHT has found the site pool for this allocation, which stores the pool metadata for this allocation site, we can discuss how allocation works. 
 On the first request from an allocation site, the allocation site will be 
 inserted into the PHT but the size table pointer for the pool metadata will be 
 null. This will trigger the size table to create a new element for the 
 allocation site and update the PHT element to have a pointer to that struct. In 
 future allocations from this allocation site, the size table will try to utilize 
 the free list for the given size class by passing in the location that it stores 
-the head pointer by reference to the free list allocation function, which will 
-try to allocate an existing block of the correct type and size class if possible. 
-This is discussed further in the next section, but the important point is the size 
-table allows sHeap to efficiently find the beginning of the correct free list so 
-blocks can be reused if the free list is not empty. 
+the free list head pointer to the allocation function. That function, which is discussed further in the next section, will use the freelist for allocations if it is not empty.  The important point is the site pool size table allows sHeap to efficiently find the beginning of the correct free list so blocks can be reused if the free list is not empty. 
 
 \subsection{Freelists}
 The free list is implemented as a structure containing all of the relevant type 
-information, as well as pointers to the next and previous nodes in the free list. 
+information of a block of memory, as well as pointers to the next and previous nodes in the free list. 
 The actual allocation operation is passed through the pool hash table and the size 
 table, and then arrives at the free list in order to determine whether or not to 
 create a new allocated block, or whether to reuse a previously freed block. This 
@@ -308,16 +298,13 @@ call.
 
 \subsection{Wrapper Detection}
 At this point we have shown how our memory allocator works. The security benefits 
-we achieve all stem from constraining memory reuse to be within pools. Unfortunately, 
+we achieve all stem from constraining memory reuse to be within pools of the same type, and aligning those allocations to start at the same positions. Unfortunately, 
 using the call site to malloc as the allocation site is not always sufficient for 
 uniquely identifying the type of the allocation. Simple malloc wrappers can exist 
 in programs and this would subvert our protections. A malloc wrapper is a 
 function that calls malloc on behalf of a caller, simply returning the pointer it 
-mallocs. Common uses of malloc wrappers include checking if the return is null 
-before sending it to the caller and collecting statistics on allocations. The C++ 
-new allocation keyword is actually a malloc wrapper that calls malloc, calls the 
-constructor of an object to initialize it in the memory allocated from malloc, and 
-returns it to the caller. In order to accurately pool allocations by type, we must 
+mallocs. We found that the new C++ operator was a malloc wrapper that we needed to be able to handle for type safe memory reuse for C++ programs.  Other common uses of malloc wrappers include checking if the return is null 
+before sending it to the caller and collecting statistics on allocations. In order to accurately pool allocations by type, we must 
 find the actual allocation site. This is the call site to a simple wrapper if one 
 exists. sHeap uses allocation sizes to determine whether it suspects and allocation 
 site is really a wrapper or not. On the first allocation, it stores the requested 
@@ -334,7 +321,7 @@ These values include the return value that was overwritten on the stack, the loc
 that was overwritten on the stack, and a pointer to the allocation site size table so 
 the call site to malloc can be marked as a wrapper or non-wrapper. Malloc returns to 
 the suspected wrapper, which will eventually return to the assembly routine. The 
-assembly routing operates in the stack frame of the caller to the suspected wrapper, 
+assembly routine operates in the stack frame of the caller to the suspected wrapper, 
 so it is very important not to overwrite memory in the stack frame. The routine 
 checks the value of \%rax (the return value of the suspected wrapper) and compares 
 it to the last malloc return. If they are equal, it uses the archived size table 
@@ -344,7 +331,7 @@ registers and jumps back to the return address the wrapper normally would have
 returned to, allowing the program to go back to its normal flow. Once a call site to 
 malloc is marked as a wrapper, every time that call site calls malloc, malloc will 
 lookup that it is a wrapper and use libunwind to unwind the stack 2 layers to get the 
-actual allocation site, the call site to the wrapper. 
+actual allocation site, the call site to the wrapper.
 
 One challenge with wrapper detection is when there are multiple calls to malloc before 
 the suspected wrapper returns. This can be the result of a suspected wrapper function 
@@ -367,15 +354,14 @@ accesses, this was not a trivial problem. Another added challenge was the fact t
 data and metadata had to maintain alignment. This required synchronization of user-heap 
 and meta-heap allocations. When a new block was acquired from sbrk or a free list, we 
 had to associate the correct metadata node with that block. In order to do this safely 
-without introducing safety errors, we took a fairly naive approach to thread safety. 
+without introducing concurrency errors, we took a fairly naive approach to thread safety. 
 We used libpthread mutexes to protect entire function calls, so that the entire allocation 
 routine was considered the critical region and only one thread could execute it at a time. 
 This clearly would have a performance penalty for programs with many threads that make 
 allocation calls. A future direction would be to minimize our critical region protected 
 by mutexes and to formally model and verify the thread safety of our future implementation. 
-Our current version of sHeap does guarantee thread safety and does not introduce deadlock, 
-but it does so with less than ideal performance. Making our allocations and deallocations 
-were one challenge, but a more interesting problem was ensuring thread safety for our 
+Our current version of sHeap does guarantee thread safety, in terms of preventing race conditions while not introducing deadlock, but it does so with less than ideal performance. Making our allocations and deallocations 
+thread safe was one challenge, but a more interesting problem was ensuring thread safety for our 
 wrapper detection mechanisms. In order to do wrapper detection and to mark call sites as 
 being wrappers, certain values needed to be saved in global variables. We needed a way to 
 prevent threads from overwriting the wrapper detection variables used by other threads. 
@@ -405,7 +391,7 @@ real-world program that sees active usage. For evaluation, Make was tested by bu
 Espresso from source. Gimp and evince were included in the benchmarking process because 
 we wanted to perform some testing of bigger allocations ($>16KB$). Evince is a PDF reader 
 that ships with Ubuntu 18, and Gimp is an image manipulation program that, 
-unsurprisingly, operates on images. Both images and PDFs, which tend to be bigger in 
+unsurprisingly, operates on images. Both images and PDFs tend to be bigger in 
 size. Both Gimp and Evince were tested by simply opening an image or PDF to measure the 
 memory overhead for these larger allocations. It is important to note that all 
 benchmarks were tested by making use a shell script in order to properly record the 
@@ -417,7 +403,7 @@ We captured two metrics when looking at memory overhead: resident set size (RSS)
 virtual memory size (VSize). Both RSS and VSize were recorded with respect to their peak 
 values because this is what the Cling authors did, and it seems reasonable for 
 benchmarking purposes. We captured this overhead using a Python tool called Syrupy.py 
-(\cite{b5}) that queries /proc/<pid>/status at a specified interval and outputs both the 
+(\cite{b5}) that queries /proc/[pid]/status at a specified interval and outputs both the 
 RSS and VSize which was then recorded by the team. \ref{fig:sheap-vsize-graph} shows the 
 results of the raw VSize measurements. 
 
@@ -428,10 +414,10 @@ results of the raw VSize measurements.
   \label{fig:sheap-vsize-graph}
 \end{figure}
 
-sHeap has relatively minimal overhead in the VSize department for both Gimp, evince, ping, 
+sHeap has relatively minimal overhead in the VSize measurement for Gimp, evince, ping, 
 and even Python 3. Espresso and Make have more of a discrepancy in this area, and the 
 normalized results will be seen at the end of this subsection. RSS is a slightly similar 
-story, as again, both Make and Espresso appear worse, but to a greater intensity this time.
+story, as again both Make and Espresso appear worse, but to a greater intensity this time.
 
 \begin{figure}[htbp]
   \centering
@@ -440,7 +426,7 @@ story, as again, both Make and Espresso appear worse, but to a greater intensity
   \label{fig:sheap-rss-graph}
 \end{figure}
 
-The other four programs all appear to be in a similar range of worse. If we now look at 
+The other four programs all appear to be in a similar range of overhead for RSS. If we now look at 
 \ref{fig:sheap-rss-graph}, we can see how much memory overhead is being incurred with sHeap now. 
 
 \begin{figure}[htbp]
@@ -452,7 +438,7 @@ The other four programs all appear to be in a similar range of worse. If we now 
 
 Both Make and Espresso have significant RSS overhead, 2,691\% and 4,069\% respectively. Python 3 
 however sits more comfortably at around 12\% RSS, while the remaining three programs are all 
-under 1\%. With respect to VSize, Espresso is the only terrible benchmark coming in at 324\%.
+under 1\%. With respect to VSize, Espresso is the only poorly performing benchmark coming in at 324\%.
 
 \subsection{Runtime Overhead}
 Now we turn out attention to the run-time overhead that is brought upon by the usage of sHeap. 
@@ -464,8 +450,8 @@ Espresso, and less so in the case of Python 3 and ping. Ping logically makes sen
 primarily bound by the I/O delays inherent to the nature of ping. System time is much worse 
 in the case of Espresso and Make, where Espresso resulted in 4,913.33\% and Make yielded 
 515.79\%. This is most likely  due to the lack of optimization for smaller allocations which 
-forces a lot more syscalling. Ping has a 100\% increase in system time due to the fact that 
-it makes a single malloc call, and sHeap has to make one on initialization which is doubling 
+forces a significantly higher rate of system calls to occur. Ping has a 100\% increase in system time due to the fact that 
+it makes a single malloc call, and sHeap has to make one on initialization of its metadata which is doubling 
 the number of allocation calls to the kernel. 
 
 \begin{figure}[htbp]
@@ -502,10 +488,10 @@ Our implementation introduces a number of limitations in order to ensure its fun
 well as due to its prototype state. The most obvious limitation is that our heap manager 
 relies on virtual memory being contiguous, and as a such all programs which use it cannot call 
 sbrk in between malloc calls. This is because any such calls to sbrk will disturb the order, 
-so the flist nodes don’t match up with the appropriate allocated block. Programs that do use 
+so the free list nodes don'’t match up with the appropriate allocated block. Programs that do use 
 sbrk are detected however, and will cause the program to exit. Additionally, this system is 
 also only applicable to 64 bit systems, due to the inefficiency of memory consumption, as well 
-as due to the hash algorithm that was used in our pool hash table. As mentioned in section 5-c, 
+as due to the hash algorithm that was used in our pool hash table which expects 64 bit addresses. As mentioned in section 5-c, 
 the implementation of improved handling for allocations less than 16KB is a big problem from a 
 performance standpoint. This should be addressed in the future to make sHeap more usable. 
 Another limitation is that sHeap requires a single large upfront allocation to store the 
