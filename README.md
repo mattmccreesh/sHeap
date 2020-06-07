@@ -6,7 +6,7 @@ The first step is to run `make` at the top level (the sHeap folder) in order to 
 
 Once we have everything compiled, we need to set up the environment to run with our own implementations.
 
-`LD_PRELOAD` is an environment variable that should be used to point to the `sheap.so` shared object file.
+`LD_PRELOAD` is an environment variable that should be used to pokkint to the `sheap.so` shared object file.
 
 For example, if you are at the top of the repo you can run with: 
 ```
@@ -30,3 +30,6 @@ Libunwind, was used, and can be installed on Ubuntu with sudo apt-get install li
 `pool_hash_table.c` - This is the hash table to map allocation sites to pools. Pools are defined by the sizetable for the pool, so this maps alloc site to a sizetable element which in turn stores head pointers for size classes for that call site.
 
 `util.c` - This defines util functions for allocations, system calls, and debugging utilities.  For example, it allocates memory with sys call. It also provides printing utilities as printf uses malloc and should not be used for debugging within malloc
+
+## Results
+This resulted in a very well received papare and presentation (adding this a year later as I'm testing some git permissions to diagnose an issue I"m having)
